@@ -1,0 +1,50 @@
+{
+  "name": "endministrator",
+  "version": "1.0.0",
+  "description": "Discord bot for Arkknights: Endfield",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "node src/deploy.js",
+    "start": "node index.js",
+    "lint": "eslint . --fix",
+    "format": "prettier --write .",
+    "studio": "drizzle-kit studio"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ScobbleQ/Endministrator.git"
+  },
+  "keywords": [
+    "arkknights",
+    "endfield",
+    "discord",
+    "bot"
+  ],
+  "author": "ScobbleQ",
+  "license": "GPL-3.0-only",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/ScobbleQ/Endministrator/issues"
+  },
+  "homepage": "https://github.com/ScobbleQ/Endministrator#readme",
+  "dependencies": {
+    "axios": "^1.13.2",
+    "cron": "^4.4.0",
+    "discord.js": "^14.25.1",
+    "dotenv": "^17.2.3",
+    "drizzle-orm": "^0.45.1",
+    "p-limit": "^7.2.0",
+    "postgres": "^3.4.8",
+    "user-agents": "^1.1.669"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@trivago/prettier-plugin-sort-imports": "^6.0.2",
+    "drizzle-kit": "^0.31.8",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "prettier": "^3.8.1"
+  }
+}
