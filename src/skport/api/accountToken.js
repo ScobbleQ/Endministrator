@@ -22,18 +22,22 @@ export async function accountToken(token) {
     'User-Agent': new UserAgent({ deviceCategory: 'desktop' }).toString(),
   };
 
+  const requestData = {
+    content: token,
+  };
+
   try {
     // Options preflight
     await axios.options(url, { headers });
 
     // Attempt to get account token
-    const res = await axios.post(url, { content: token }, { headers, withCredentials: true });
+    const res = await axios.post(url, requestData, { headers, withCredentials: true });
     if (res.status !== 200 || res.data.status !== 0) {
-      const msg = res.data.msg ?? 'Failed to get account token. Please try again.';
+      const msg = res.data.msg || 'Failed to get account token. Please try again.';
       return { status: -1, msg };
     }
 
-    return { status: 0, data: res.headers['set-cookie'] ?? [] };
+    return { status: 0, data: res.headers['set-cookie'] || [] };
   } catch (error) {
     return { status: -1, msg: 'Failed to get account token. Please try again.' };
   }

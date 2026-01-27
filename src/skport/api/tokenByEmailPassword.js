@@ -33,7 +33,7 @@ export async function tokenByEmailPassword(email, password) {
     // Attempt to get token
     const res = await axios.post(url, { email, password }, { headers });
     if (res.status !== 200 || res.data.status !== 0) {
-      const msg = res.data.msg ?? 'Failed to login. Please try again.';
+      const msg = res.data.msg || 'Failed to login. Please try again.';
       return { status: -1, msg };
     }
 
