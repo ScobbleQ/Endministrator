@@ -1,4 +1,3 @@
-import axios from 'axios';
 import UserAgent from 'user-agents';
 
 /**
@@ -23,12 +22,37 @@ import UserAgent from 'user-agents';
  */
 
 /**
- *
- * @param {{cred: string, sign: string, uid: string}} param0
+ * Submit attendance to the API
+ * @param {{cred: string, sign: string, uid: string, serverId: string}} param0
  * @returns {Promise<{ status: -1, msg: string } | { status: 0, data: ResourceItem[] }>}
+ * @example
+ * // Login with email and password
+ * const login = await tokenByEmailPassword('test@example.com', 'password');
+ * const oauth = await grantOAuth({ token: login.data.token, type: 0 });
+ *
+ * // Exchange the OAuth token for credentials
+ * const cred = await generateCredByCode({ code: oauth.data.code });
+ * const sign = computeSign({
+ *   token: cred.data.token,
+ *   path: '/web/v1/game/endfield/attendance',
+ *   body: '{}'
+ * });
+ *
+ * // Get the endfield binding
+ * const endfieldBinding = binding.data.find((binding) => binding.appCode === 'endfield');
+ * const endfield = endfieldBinding.bindingList[0];
+ *
+ * const attendance = await attendance({
+ *   cred: cred.data.cred,
+ *   sign: sign,
+ *   uid: endfield.defaultRole.roleId,
+ *   serverId: endfield.defaultRole.serverId,
+ * });
+ * console.dir(attendance, { depth: null });
  */
-export async function attendance({ cred, sign, uid }) {
+export async function attendance({ cred, sign, uid, serverId }) {
   const url = 'https://zonai.skport.com/web/v1/game/endfield/attendance';
+
   const headers = {
     Accept: '*/*',
     'Accept-Encoding': 'gzip, deflate, br',
@@ -42,7 +66,7 @@ export async function attendance({ cred, sign, uid }) {
     Priority: 'u=3, i',
     Referer: 'https://game.skport.com/',
     sign: sign,
-    'sk-game-role': `3_${uid}_3`,
+    'sk-game-role': `3_${uid}_${serverId}`,
     'sk-language': 'en',
     timestamp: Math.floor(Date.now() / 1000).toString(),
     'User-Agent': new UserAgent({ deviceCategory: 'desktop' }).toString(),
@@ -50,25 +74,32 @@ export async function attendance({ cred, sign, uid }) {
   };
 
   try {
-    const res = await axios.post(url, { headers });
-    if (res.status !== 200 || res.data.code !== 0) {
-      const msg = res.data.msg || 'Failed to get attendance. Please try again.';
+    await fetch(url, {
+      method: 'OPTIONS',
+      headers: headers,
+    });
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: headers,
+    });
+
+    if (!res.ok) {
+      const msg = await res.text();
       return { status: -1, msg };
     }
 
-    const data = /** @type {AttendanceResponse} */ (res.data.data);
-
-    /** @type {ResourceItem[]} */
-    const rewards = [];
-
-    for (const award of data.awardIds) {
-      const reward = data.resourceInfoMap[award.id];
-      if (!reward) continue;
-      rewards.push(reward);
+    const data = await res.json();
+    if (data.code !== 0) {
+      return { status: -1, msg: data.message };
     }
 
-    return { status: 0, data: rewards };
+    const resourceItems = data.data.awardIds.map((/** @type {AwardIds} */ award) => {
+      return data.data.resourceInfoMap[award.id];
+    });
+
+    return { status: 0, data: resourceItems };
   } catch (error) {
-    return { status: -1, msg: 'Failed to get attendance. Please try again.' };
+    return { status: -1, msg: /** @type {Error} */ (error).message };
   }
 }

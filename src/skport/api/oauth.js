@@ -1,42 +1,56 @@
-import axios from 'axios';
-import UserAgent from 'user-agents';
-
 /**
+ * Get OAuth token from SKPort via the app
+ * @param {{ token: string, type: 0 | 1 }} param0
+ * @returns {Promise<{ status: -1, msg: string } | { status: 0, data: { uid: string, code: string } | { token: string, hgId: string} }>}
+ * @example
+ * // Login with email and password
+ * const login = await tokenByEmailPassword('test@example.com', 'password');
  *
- * @param {{ token: string }} param0
- * @returns {Promise<{ status: -1, msg: string } | { status: 0, data: { uid: string, code: string } }>}
+ * // Grant OAuth token
+ * const oauth = await grantOAuth({ token: login.data.token, appCode: '3dacefa138426cfe' });
+ * console.dir(oauth, { depth: null });
  */
-export async function oauth({ token }) {
+export async function grantOAuth({ token, type }) {
   const url = 'https://as.gryphline.com/user/oauth2/v2/grant';
-  const headers = {
-    Accept: 'application/json',
-    'Accept-Encoding': 'gzip, deflate, br',
-    'Accept-Language': 'en-US,en;q=0.9',
-    'Cache-Control': 'no-cache',
-    'Content-Type': 'application/json',
-    Origin: 'https://www.skport.com',
-    Pragma: 'no-cache',
-    Priority: 'u=3, i',
-    Referer: 'https://www.skport.com/',
-    'User-Agent': new UserAgent({ deviceCategory: 'desktop' }).toString(),
-    'x-language': 'en-us',
+
+  const body = {
+    appCode: type === 0 ? '6eb76d4e13aa36e6' : '3dacefa138426cfe',
+    token: token,
+    type: type,
   };
 
-  const requestData = {
-    token: token,
-    appCode: '6eb76d4e13aa36e6',
-    type: 0,
+  const headers = {
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Accept-Encoding': 'gzip, deflate, br',
+    Accept: '*\/*',
+    'Content-Type': 'application\/json',
+    Host: 'as.gryphline.com',
+    'User-Agent': 'skport-ios\/701014 CFNetwork\/3860.300.31 Darwin\/25.2.0',
+    'Content-Length': JSON.stringify(body).length.toString(),
+    'X-Language': 'en-us',
+    Connection: 'keep-alive',
+    'X-Captcha-Version': '4.0',
   };
 
   try {
-    const res = await axios.post(url, requestData, { headers });
-    if (res.status !== 200 || res.data.status !== 0) {
-      const msg = res.data.msg || 'Failed to get OAuth token. Please try again.';
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      const msg = await res.text();
       return { status: -1, msg };
     }
 
-    return { status: 0, data: res.data.data };
+    const data = await res.json();
+    if (data.status !== 0) {
+      return { status: -1, msg: data.msg };
+    }
+
+    return { status: 0, data: data.data };
   } catch (error) {
-    return { status: -1, msg: 'Failed to get OAuth token. Please try again.' };
+    return { status: -1, msg: /** @type {Error} */ (error).message };
   }
 }

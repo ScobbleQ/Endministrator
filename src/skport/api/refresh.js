@@ -1,9 +1,9 @@
 import UserAgent from 'user-agents';
 
 /**
- * Generate credentials by code from SKPort via the website
- * @param {{ code: string }} param0
- * @returns {Promise<{ status: -1, msg: string } | { status: 0, data: { cred: string, userId: string, token: string } }>}
+ * Refresh the token used to sign requests to the API
+ * @param {{ cred: string }} param0
+ * @returns {Promise<{ status: -1, msg: string } | { status: 0, data: { token: string } }>}
  * @example
  * // Login with email and password
  * const login = await tokenByEmailPassword('test@example.com', 'password');
@@ -11,44 +11,37 @@ import UserAgent from 'user-agents';
  *
  * // Exchange the OAuth token for credentials
  * const cred = await generateCredByCode({ code: oauth.data.code });
- * console.dir(cred, { depth: null });
+ *
+ * // Refresh the token used to sign requests to the API
+ * const refresh = await refreshToken({ cred: cred.data.cred });
+ * console.dir(refresh, { depth: null });
  */
-export async function generateCredByCode({ code }) {
-  const url = 'https://zonai.skport.com/web/v1/user/auth/generate_cred_by_code';
-
-  const body = {
-    kind: 1,
-    code: code,
-  };
+export async function refreshToken({ cred }) {
+  const url = 'https://zonai.skport.com/web/v1/auth/refresh';
 
   const headers = {
     Accept: '*/*',
     'Accept-Encoding': 'gzip, deflate, br',
     'Accept-Language': 'en-US,en;q=0.9',
     'Cache-Control': 'no-cache',
-    'Content-Length': JSON.stringify(body).length.toString(),
+    'Content-Length': '0',
     'Content-Type': 'application/json',
-    Origin: 'https://www.skport.com',
-    platform: '3',
+    Origin: 'https://game.skport.com',
     Pragma: 'no-cache',
     Priority: 'u=3, i',
-    Referer: 'https://www.skport.com/',
+    Referer: 'https://game.skport.com/',
+    cred: cred,
+    platform: '3',
     'sk-language': 'en',
     timestamp: Math.floor(Date.now() / 1000).toString(),
     'User-Agent': new UserAgent({ deviceCategory: 'desktop' }).toString(),
     vName: '1.0.0',
   };
 
-  const requestData = {
-    kind: 1,
-    code: code,
-  };
-
   try {
     const res = await fetch(url, {
-      method: 'POST',
+      method: 'GET',
       headers: headers,
-      body: JSON.stringify(body),
     });
 
     if (!res.ok) {
@@ -57,11 +50,7 @@ export async function generateCredByCode({ code }) {
     }
 
     const data = await res.json();
-    if (data.code !== 0) {
-      return { status: -1, msg: data.msg };
-    }
-
-    return { status: 0, data: data.data };
+    return { status: 0, data: data };
   } catch (error) {
     return { status: -1, msg: /** @type {Error} */ (error).message };
   }

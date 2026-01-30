@@ -1,44 +1,53 @@
-import axios from 'axios';
-import UserAgent from 'user-agents';
-
 /**
- * Get token with email and password
+ * Get token by email and password from SKPort via the app
  * @param {string} email
  * @param {string} password
  * @returns {Promise<{ status: -1, msg: string } | { status: 0, data: { token: string, hgId: string, email: string, isLatestUserAgreement: boolean } }>}
  * @example
- * const token = await tokenByEmailPassword('test@example.com', 'password');
- * console.dir(token, { depth: null });
+ * const login = await tokenByEmailPassword('test@example.com', 'password');
+ * console.dir(login, { depth: null });
  */
 export async function tokenByEmailPassword(email, password) {
   const url = 'https://as.gryphline.com/user/auth/v1/token_by_email_password';
+
+  const body = {
+    email: email,
+    from: 1,
+    password: password,
+  };
+
   const headers = {
-    Accept: 'application/json',
-    'Accept-Encoding': 'gzip, deflate, br, zstd',
+    Host: 'as.gryphline.com',
+    'X-Captcha-Version': '4.0',
+    'X-Language': 'en-us',
+    'Accept-Encoding': 'gzip, deflate, br',
+    Accept: '*\/*',
+    'Content-Type': 'application\/json',
     'Accept-Language': 'en-US,en;q=0.9',
-    'Access-Control-Request-Headers': 'content-type,x-language',
-    'Access-Control-Request-Method': 'POST',
-    'Cache-Control': 'no-cache',
-    Origin: 'https://www.skport.com',
-    Pragma: 'no-cache',
-    Priority: 'u=0, i',
-    Referer: 'https://www.skport.com/',
-    'User-Agent': new UserAgent({ deviceCategory: 'desktop' }).toString(),
+    Connection: 'keep-alive',
+    'Content-Length': JSON.stringify(body).length.toString(),
+    'User-Agent': 'skport-ios\/701014 CFNetwork\/3860.300.31 Darwin\/25.2.0',
   };
 
   try {
-    // Options preflight
-    await axios.options(url, { headers });
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(body),
+    });
 
-    // Attempt to get token
-    const res = await axios.post(url, { email, password }, { headers });
-    if (res.status !== 200 || res.data.status !== 0) {
-      const msg = res.data.msg || 'Failed to login. Please try again.';
+    if (!res.ok) {
+      const msg = await res.text();
       return { status: -1, msg };
     }
 
-    return { status: 0, data: res.data.data };
+    const data = await res.json();
+    if (data.status !== 0) {
+      return { status: -1, msg: data.msg };
+    }
+
+    return { status: 0, data: data.data };
   } catch (error) {
-    return { status: -1, msg: 'Failed to login. Please try again.' };
+    return { status: -1, msg: /** @type {Error} */ (error).message };
   }
 }
