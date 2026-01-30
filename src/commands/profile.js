@@ -8,13 +8,10 @@ import {
 } from 'discord.js';
 import { BotConfig } from '../../config.js';
 import { createEvent, getUser } from '../db/queries.js';
-import {
-  cardDetail,
-  generateCredByCode,
-  grantOAuth,
-} from '../skport/api/index.js';
+import { cardDetail, generateCredByCode, grantOAuth } from '../skport/api/index.js';
 import { computeSign } from '../skport/util/computeSign.js';
 import { MessageTone, noUserContainer } from '../utils/containers.js';
+import { privacy } from '../utils/privacy.js';
 
 export default {
   data: new SlashCommandBuilder()
@@ -100,9 +97,9 @@ export default {
         textDisplay.setContent(
           [
             `## // ${profile.data.base.name}`,
-            `>> Awakening Day: <t:${profile.data.base.createTime}:f>`,
-            `>> UID: \`${profile.data.base.roleId}\``,
-            `>> Server: ${profile.data.base.serverName}`,
+            `> Awakening Day: <t:${profile.data.base.createTime}:f>`,
+            `> UID: ${privacy(profile.data.base.roleId, user.isPrivate)}`,
+            `> Server: ${profile.data.base.serverName}`,
           ].join('\n')
         )
       )
@@ -134,13 +131,11 @@ export default {
     profileContainer.addTextDisplayComponents(realTimeDataTextDisplay);
 
     const domains = profile.data.domain
-      .map((d) =>
-        [
-          `**${d.name}** Lv.${d.level}`,
-          ...d.settlements.map((s) => `-# ${s.name} - ${s.level}`),
-        ].join('\n')
-      )
-      .join('\n\n');
+      .flatMap((d) => [
+        `**${d.name}** Lv.${d.level}`,
+        ...d.settlements.map((s) => `-# ${s.name}: ${s.level}`),
+      ])
+      .join('\n');
 
     profileContainer.addTextDisplayComponents((textDisplay) =>
       textDisplay.setContent(`### [ Regional Development ]\n${domains}`)
@@ -158,7 +153,7 @@ export default {
               [
                 `**${operator.charData.name}** tempIcon tempIcon`,
                 '%'.repeat(Number(operator.charData.rarity.value)),
-                `Recruited on <t:${operator.ownTs}:f>`,
+                `Recruited <t:${operator.ownTs}:F>`,
                 `Level: ${operator.level}`,
               ].join('\n')
             )

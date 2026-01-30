@@ -1,6 +1,8 @@
-import { MessageFlags, SlashCommandBuilder } from 'discord.js';
+import { ContainerBuilder, MessageFlags, SlashCommandBuilder } from 'discord.js';
 import { BotConfig } from '../../config.js';
 import { createEvent, getUser } from '../db/queries.js';
+import { attendance, generateCredByCode, grantOAuth } from '../skport/api/index.js';
+import { computeSign } from '../skport/util/computeSign.js';
 import { MessageTone, noUserContainer } from '../utils/containers.js';
 
 export default {
@@ -34,6 +36,51 @@ export default {
       });
     }
 
-    await interaction.reply({ content: 'Coming soon...', flags: [MessageFlags.Ephemeral] });
+    const oauth = await grantOAuth({ token: user.lToken, type: 0 });
+    if (!oauth || oauth.status !== 0) {
+      return;
+    }
+
+    // @ts-ignore: code is guaranteed since we are using type 0
+    const cred = await generateCredByCode({ code: oauth.data.code });
+    if (!cred || cred.status !== 0) {
+      return;
+    }
+
+    const sign = computeSign({
+      token: cred.data.token,
+      path: '/web/v1/game/endfield/attendance',
+      body: '{}',
+    });
+
+    const e = await attendance({
+      cred: cred.data.cred,
+      sign: sign,
+      uid: user.roleId,
+      serverId: user.serverId,
+    });
+
+    if (!e || e.status !== 0) {
+      return;
+    }
+
+    const attendanceContainer = new ContainerBuilder().addTextDisplayComponents((textDisplay) =>
+      textDisplay.setContent(`## Daily Attendance Claimed`)
+    );
+
+    for (const resource of e.data) {
+      attendanceContainer.addSectionComponents((section) =>
+        section
+          .addTextDisplayComponents((textDisplay) =>
+            textDisplay.setContent(`${resource.name}\nx${resource.count}`)
+          )
+          .setThumbnailAccessory((thumbnail) => thumbnail.setURL(resource.icon))
+      );
+    }
+
+    await interaction.reply({
+      components: [attendanceContainer],
+      flags: [MessageFlags.IsComponentsV2],
+    });
   },
 };
