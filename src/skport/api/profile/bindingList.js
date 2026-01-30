@@ -1,5 +1,3 @@
-// Done
-import axios from 'axios';
 import UserAgent from 'user-agents';
 
 /**
@@ -28,7 +26,7 @@ import UserAgent from 'user-agents';
  * @example
  * // Login and get OAuth token
  * const login = await tokenByEmailPassword('test@example.com', 'password');
- * const oauth = await grantOAuth({ token: login.data.token, appCode: '3dacefa138426cfe' });
+ * const oauth = await grantOAuth({ token: login.data.token, type: 1 });
  *
  * // Pass OAuth token to get list of bindings
  * const bindings = await bindingList({ token: oauth.data.token });
@@ -36,6 +34,14 @@ import UserAgent from 'user-agents';
  */
 export async function bindingList({ token }) {
   const url = 'https://binding-api-account-prod.gryphline.com/account/binding/v1/binding_list';
+
+  const params = {
+    token,
+    appCode: 'endfield',
+  };
+
+  const newUrl = `${url}?${new URLSearchParams(params).toString()}`;
+
   const headers = {
     Accept: 'application/json',
     'Accept-Encoding': 'gzip, deflate, br',
@@ -49,22 +55,23 @@ export async function bindingList({ token }) {
     'x-language': 'en-us',
   };
 
-  const params = {
-    token,
-    appCode: 'endfield',
-  };
-
   try {
-    await axios.options(url, { headers });
+    await fetch(newUrl, { method: 'OPTIONS', headers });
 
-    const res = await axios.get(url, { headers, params });
-    if (res.status !== 200 || res.data.status !== 0) {
-      const msg = res.data.msg || 'Failed to get binding list. Please try again.';
+    const res = await fetch(newUrl, { headers });
+    if (!res.ok) {
+      const msg = (await res.text()) || 'Failed to get binding list. Please try again.';
       return { status: -1, msg };
     }
 
-    return { status: 0, data: res.data.data.list };
+    const data = await res.json();
+    if (data.status !== 0) {
+      const msg = data.msg || 'Failed to get binding list. Please try again.';
+      return { status: -1, msg };
+    }
+
+    return { status: 0, data: data.data.list };
   } catch (error) {
-    return { status: -1, msg: 'Failed to get binding list. Please try again.' };
+    return { status: -1, msg: /** @type {Error} */ (error).message };
   }
 }
