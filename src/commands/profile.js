@@ -2,8 +2,8 @@ import { MessageFlags, SlashCommandBuilder } from 'discord.js';
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('attendance')
-    .setDescription('Attendance to SKPort')
+    .setName('profile')
+    .setDescription('Get your profile information')
     .setIntegrationTypes([0, 1])
     .setContexts([0, 1, 2]),
   /**

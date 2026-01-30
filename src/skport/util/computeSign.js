@@ -2,6 +2,7 @@ import crypto from 'crypto';
 
 /**
  * Compute the signature for zonai.skport.com API requests.
+ *
  * Formula: sign = MD5(HMAC-SHA256(path + body + timestamp + headers_json, signToken))
  * @param {{ token: string, path: string, body: string }} param0
  * @returns {string}
@@ -14,8 +15,11 @@ import crypto from 'crypto';
  * const cred = await generateCredByCode({ code: oauth.data.code });
  *
  * // Compute the signature
- * const sign = computeSign({ token: cred.data.token, path: '/web/v1/game/endfield/attendance', body: '{}' });
- * console.log(sign);
+ * const sign = computeSign({
+ *   token: cred.data.token,
+ *   path: '/web/v1/game/endfield/attendance',
+ *   body: '{}'
+ * });
  */
 export function computeSign({ token, path, body = '' }) {
   const ts = Math.floor(Date.now() / 1000).toString();

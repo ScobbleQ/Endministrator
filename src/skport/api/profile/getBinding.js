@@ -1,9 +1,31 @@
 import UserAgent from 'user-agents';
 
 /**
+ * @typedef {Object} PlayerBinding
+ * @property {string} appCode
+ * @property {string} appName
+ * @property {boolean} supportMultiServer
+ * @property {PlayerBindingList[]} bindingList
+ */
+
+/**
+ * @typedef {Object} PlayerBindingList
+ * @property {string} uid
+ * @property {boolean} isOfficial
+ * @property {boolean} isDefault
+ * @property {string} channelMasterId
+ * @property {string} channelName
+ * @property {boolean} isDelete
+ * @property {string} gameName
+ * @property {number} gameId
+ * @property {{ serverId: string, roleId: string, nickname: string, level: number, isDefault: boolean, isBanned: boolean, serverType: string, serverName: string }[]} roles
+ * @property {{ serverId: string, roleId: string, nickname: string, level: number, isDefault: boolean, isBanned: boolean, serverType: string, serverName: string }} defaultRole
+ */
+
+/**
  * Get the binding list from the API
  * @param {{ cred: string, sign: string }} param0
- * @returns {Promise<{ status: -1, msg: string } | { status: 0, data: {}[] }>}
+ * @returns {Promise<{ status: -1, msg: string } | { status: 0, data: PlayerBinding[] }>}
  * @example
  * // Login with email and password
  * const login = await tokenByEmailPassword('test@example.com', 'password');
