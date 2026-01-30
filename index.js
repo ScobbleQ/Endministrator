@@ -6,9 +6,9 @@ const manager = new ShardingManager('./src/bot.js', {
 });
 
 manager.on('shardCreate', (shard) => {
-  console.info(`Launched shard ${shard.id}`);
+  console.info(`[Discord] Launched shard ${shard.id}`);
 });
 
 manager.spawn().catch((error) => {
-  console.error('Error spawning shards:', error);
+  console.error('[Discord] Error spawning shards:', error);
 });

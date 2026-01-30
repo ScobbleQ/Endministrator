@@ -1,0 +1,3 @@
+tokenByEmailPassword
+-> grant
+-> basic

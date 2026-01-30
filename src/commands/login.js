@@ -10,6 +10,8 @@ import {
   TextInputStyle,
 } from 'discord.js';
 import { ButtonBuilder } from '@discordjs/builders';
+import { BotConfig } from '../../config.js';
+import { createEvent, createUser, getUser } from '../db/queries.js';
 import {
   generateCredByCode,
   getBinding,
@@ -17,6 +19,7 @@ import {
   tokenByEmailPassword,
 } from '../skport/api/index.js';
 import { computeSign } from '../skport/util/computeSign.js';
+import { MessageTone, alreadyLoggedInContainer, noUserContainer } from '../utils/containers.js';
 
 export default {
   data: new SlashCommandBuilder()
@@ -29,16 +32,34 @@ export default {
    * @returns {Promise<void>}
    */
   async execute(interaction) {
+    const user = await getUser(interaction.user.id);
+    if (user) {
+      if (BotConfig.environment === 'production') {
+        await createEvent(interaction.user.id, {
+          interaction: 'discord',
+          metadata: {
+            type: 'slash',
+            command: 'login',
+            timestamp: Date.now(),
+          },
+        });
+      }
+
+      await interaction.reply({
+        components: [noUserContainer({ tone: MessageTone.Formal })],
+        flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
+      });
+      return;
+    }
+
     const container = new ContainerBuilder();
 
     const textDisplay = new TextDisplayBuilder().setContent(
       [
-        '# Login to SKPort',
-        'By clicking the button below, you will be asked to enter your credentials.',
+        '## Login to SKPort - Gryphline Community',
+        'By clicking the button below, you agree to our [Terms of Service](https://github.com/ScobbleQ/Endministrator) and [Privacy Policy](https://github.com/ScobbleQ/Endministrator).',
         '',
-        'Your credentials (email and password) will **not** be stored.',
-        'If you have any doubts to how we handle your data, please check our [GitHub repository](https://github.com/ScobbleQ/Endministrator)',
-        'The code is open sourced and in src/commands/login.js',
+        'The source code is avaialable on [GitHub](https://github.com/ScobbleQ/Endministrator) if you have any doubts to how we handle your login proccess and data. Rest assured, we do not store any of your login credentials after the login process is completed.',
       ].join('\n')
     );
     container.addTextDisplayComponents(textDisplay);
@@ -58,6 +79,15 @@ export default {
    * @param {import("discord.js").ButtonInteraction} interaction
    */
   async button(interaction) {
+    const user = await getUser(interaction.user.id);
+    if (user) {
+      await interaction.reply({
+        components: [alreadyLoggedInContainer({ tone: MessageTone.Informal })],
+        flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
+      });
+      return;
+    }
+
     const modal = new ModalBuilder().setCustomId('login').setTitle('Login to SKPort');
 
     const emailInput = new TextInputBuilder()
@@ -89,6 +119,15 @@ export default {
    * @param {import("discord.js").ModalSubmitInteraction} interaction
    */
   async modal(interaction) {
+    const user = await getUser(interaction.user.id);
+    if (user) {
+      await interaction.reply({
+        components: [alreadyLoggedInContainer({ tone: MessageTone.Informal })],
+        flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
+      });
+      return;
+    }
+
     const email = interaction.fields.getTextInputValue('email');
     const password = interaction.fields.getTextInputValue('password');
 
@@ -180,7 +219,24 @@ export default {
         return;
       }
 
-      const roleInfo = endfield.bindingList[0].defaultRole;
+      // Get default role from the binding, fallback to first role
+      const selectedBinding =
+        endfield.bindingList.find((b) => b.isDefault) ?? endfield.bindingList[0];
+      const roleInfo =
+        selectedBinding.defaultRole ??
+        selectedBinding.roles?.find((r) => r.isDefault) ??
+        selectedBinding.roles?.[0];
+
+      if (!roleInfo) {
+        const noRoleContainer = new ContainerBuilder().addTextDisplayComponents((textDisplay) =>
+          textDisplay.setContent('No game role found for this binding.')
+        );
+        await interaction.editReply({
+          components: [noRoleContainer],
+          flags: [MessageFlags.IsComponentsV2],
+        });
+        return;
+      }
 
       const foundContainer = new ContainerBuilder().addTextDisplayComponents((textDisplay) =>
         textDisplay.setContent('Account confirmed, attempting to store data...')
@@ -191,7 +247,36 @@ export default {
         flags: [MessageFlags.IsComponentsV2],
       });
 
+      // Somehow they got banned...
+      if (roleInfo.isBanned) {
+        const bannedContainer = new ContainerBuilder().addTextDisplayComponents((textDisplay) =>
+          textDisplay.setContent('The account is banned.')
+        );
+        await interaction.editReply({
+          components: [bannedContainer],
+          flags: [MessageFlags.IsComponentsV2],
+        });
+        return;
+      }
+
       // store data in the database
+      await createUser(interaction.user.id, {
+        email: login.data.email,
+        hgId: login.data.hgId,
+        lToken: login.data.token,
+
+        // @ts-ignore: uid is guaranteed since we are using type 0
+        oathUid: oauth.data.uid,
+        // @ts-ignore: code is guaranteed since we are using type 0
+        oauthCode: oauth.data.code,
+
+        cred: cred.data.cred,
+        userId: cred.data.userId,
+        cToken: login.data.token,
+
+        serverId: roleInfo.serverName,
+        roleId: roleInfo.roleId,
+      });
 
       const successContainer = new ContainerBuilder().addTextDisplayComponents((textDisplay) =>
         textDisplay.setContent(

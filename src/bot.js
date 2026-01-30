@@ -23,7 +23,7 @@ for (const file of commandFolders) {
   if ('data' in command.default && 'execute' in command.default) {
     client.commands.set(command.default.data.name, command.default);
   } else {
-    console.warn(`Discord: Command at ${filePath} is missing a data or execute property.`);
+    console.warn(`[Discord] Command at ${filePath} is missing a data or execute property.`);
   }
 }
 
@@ -42,5 +42,5 @@ for (const file of eventFolders) {
 }
 
 client.login(BotConfig.token).catch((error) => {
-  console.error('Discord: Error logging in:', error);
+  console.error('[Discord] Error logging in:', error);
 });

@@ -16,7 +16,7 @@ for (const file of commandFolders) {
   if (command.default && 'data' in command.default && 'execute' in command.default) {
     commands.push(command.default.data.toJSON());
   } else {
-    console.warn(`Discord: Command at ${filePath} is missing a data or execute property.`);
+    console.warn(`[Discord] Command at ${filePath} is missing a data or execute property.`);
   }
 }
 
@@ -24,7 +24,7 @@ const rest = new REST().setToken(BotConfig.token);
 
 try {
   const data = await rest.put(Routes.applicationCommands(BotConfig.clientId), { body: commands });
-  console.info(`Discord: Successfully deployed ${Array.isArray(data) ? data.length : 0} commands`);
+  console.info(`[Discord] Successfully deployed ${Array.isArray(data) ? data.length : 0} commands`);
 } catch (error) {
-  console.error('Discord: Error deploying commands:', error);
+  console.error('[Discord] Error deploying commands:', error);
 }

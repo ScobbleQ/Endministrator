@@ -1,4 +1,7 @@
 import { MessageFlags, SlashCommandBuilder } from 'discord.js';
+import { BotConfig } from '../../config.js';
+import { createEvent, getUser } from '../db/queries.js';
+import { MessageTone, noUserContainer } from '../utils/containers.js';
 
 export default {
   data: new SlashCommandBuilder()
@@ -11,6 +14,26 @@ export default {
    * @returns {Promise<void>}
    */
   async execute(interaction) {
+    const user = await getUser(interaction.user.id);
+    if (!user) {
+      await interaction.reply({
+        components: [noUserContainer({ tone: MessageTone.Formal })],
+        flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
+      });
+      return;
+    }
+
+    if (BotConfig.environment === 'production') {
+      await createEvent(interaction.user.id, {
+        interaction: 'discord',
+        metadata: {
+          type: 'slash',
+          command: 'attendance',
+          timestamp: Date.now(),
+        },
+      });
+    }
+
     await interaction.reply({ content: 'Coming soon...', flags: [MessageFlags.Ephemeral] });
   },
 };
