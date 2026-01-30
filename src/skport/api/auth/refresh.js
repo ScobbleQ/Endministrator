@@ -50,7 +50,7 @@ export async function refreshToken({ cred }) {
     }
 
     const data = await res.json();
-    return { status: 0, data: data };
+    return { status: 0, data: data.data };
   } catch (error) {
     return { status: -1, msg: /** @type {Error} */ (error).message };
   }

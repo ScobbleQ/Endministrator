@@ -32,6 +32,7 @@ export const skport = pgTable(
     oauthCode: text('oauth_code').notNull(),
     email: text().notNull(),
     oathUid: text('oath_uid').notNull(),
+    serverName: text('server_name').notNull(),
   },
   (table) => [
     foreignKey({

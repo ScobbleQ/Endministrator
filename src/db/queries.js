@@ -5,17 +5,18 @@ import { events, skport, users } from './schema.js';
 /**
  * Add the newly logged in user to the database
  * @param {string} dcid
- * @param {{ email: string, cred: string, userId: string, cToken: string, serverId: string, roleId: string, lToken: string, hgId: string, oauthCode: string, oathUid: string }} data
+ * @param {{ email: string, serverName: string, cred: string, userId: string, cToken: string, serverId: string, roleId: string, lToken: string, hgId: string, oauthCode: string, oathUid: string }} data
  * @returns {Promise<void>}
  */
 export async function createUser(
   dcid,
-  { email, cred, userId, cToken, serverId, roleId, lToken, hgId, oauthCode, oathUid }
+  { email, serverName, cred, userId, cToken, serverId, roleId, lToken, hgId, oauthCode, oathUid }
 ) {
   await db.transaction(async (tx) => {
     await tx.insert(users).values({ dcid }).onConflictDoNothing();
     await tx.insert(skport).values({
       email,
+      serverName,
       dcid,
       cred,
       userId,
@@ -33,7 +34,25 @@ export async function createUser(
 /**
  * Get a user from the database
  * @param {string} dcid
- * @returns {Promise<{ dcid: string, createdAt: string, isPrivate: boolean, notifyAttendance: boolean, enableAttendance: boolean, isBanned: boolean } | null>}
+ * @returns {Promise<{
+ *   dcid: string,
+ *   createdAt: string,
+ *   isPrivate: boolean,
+ *   notifyAttendance: boolean,
+ *   enableAttendance: boolean,
+ *   isBanned: boolean,
+ *   serverId: string,
+ *   roleId: string,
+ *   userId: string,
+ *   cred: string,
+ *   cToken: string,
+ *   lToken: string,
+ *   hgId: string,
+ *   oauthCode: string,
+ *   oathUid: string,
+ *   email: string,
+ *   serverName: string
+ * } | null>}
  */
 export async function getUser(dcid) {
   const user = await db
@@ -44,8 +63,20 @@ export async function getUser(dcid) {
       notifyAttendance: users.notifyAttendance,
       enableAttendance: users.enableAttendance,
       isBanned: users.isBanned,
+      serverId: skport.serverId,
+      roleId: skport.roleId,
+      userId: skport.userId,
+      cred: skport.cred,
+      cToken: skport.cToken,
+      lToken: skport.lToken,
+      hgId: skport.hgId,
+      oauthCode: skport.oauthCode,
+      oathUid: skport.oathUid,
+      email: skport.email,
+      serverName: skport.serverName,
     })
     .from(users)
+    .innerJoin(skport, eq(users.dcid, skport.dcid))
     .where(eq(users.dcid, dcid))
     .limit(1);
 

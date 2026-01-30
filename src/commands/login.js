@@ -274,7 +274,8 @@ export default {
         userId: cred.data.userId,
         cToken: login.data.token,
 
-        serverId: roleInfo.serverName,
+        serverId: roleInfo.serverId,
+        serverName: roleInfo.serverName,
         roleId: roleInfo.roleId,
       });
 
