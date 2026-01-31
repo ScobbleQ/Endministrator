@@ -130,3 +130,45 @@ export async function deleteUser(dcid) {
 export async function createEvent(dcid, { interaction, metadata = null }) {
   await db.insert(events).values({ dcid, interaction, metadata });
 }
+
+/**
+ *
+ * @param {string} dcid
+ * @returns
+ */
+export async function getSkportUser(dcid) {
+  const skportData = await db
+    .select({
+      userId: skport.userId,
+      roleId: skport.roleId,
+      serverId: skport.serverId,
+      loginToken: skport.loginToken,
+      cred: skport.cred,
+      cToken: skport.cToken,
+      hgId: skport.hgId,
+      oauthCode: skport.oauthCode,
+      oathUid: skport.oathUid,
+      email: skport.email,
+      serverName: skport.serverName,
+    })
+    .from(skport)
+    .where(eq(skport.dcid, dcid));
+
+  if (!skportData || skportData.length === 0) {
+    return null;
+  }
+
+  return skportData[0];
+}
+
+export async function getAllUsersWithAttendance() {
+  return await db
+    .select({
+      dcid: users.dcid,
+      isPrivate: users.isPrivate,
+      notifyAttendance: users.notifyAttendance,
+      enableAttendance: users.enableAttendance,
+    })
+    .from(users)
+    .where(eq(users.enableAttendance, true));
+}

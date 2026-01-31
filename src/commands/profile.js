@@ -161,7 +161,7 @@ export default {
               [
                 `**${operator.charData.name}** ${ProfessionEmojis[/** @type {keyof typeof ProfessionEmojis} */ (operator.charData.profession.value)]} ${PropertyEmojis[/** @type {keyof typeof PropertyEmojis} */ (operator.charData.property.value)]}`,
                 `${RarityEmoji}`.repeat(Number(operator.charData.rarity.value)),
-                `Recruited <t:${operator.ownTs}:F>`,
+                `Recruited <t:${operator.ownTs}:d> at <t:${operator.ownTs}:t>`,
                 `Level: ${operator.level}`,
               ].join('\n')
             )
