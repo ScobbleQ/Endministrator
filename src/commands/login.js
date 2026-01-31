@@ -263,7 +263,7 @@ export default {
       await createUser(interaction.user.id, {
         email: login.data.email,
         hgId: login.data.hgId,
-        lToken: login.data.token,
+        loginToken: login.data.token,
 
         // @ts-ignore: uid is guaranteed since we are using type 0
         oathUid: oauth.data.uid,

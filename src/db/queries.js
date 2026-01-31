@@ -5,12 +5,24 @@ import { events, skport, users } from './schema.js';
 /**
  * Add the newly logged in user to the database
  * @param {string} dcid
- * @param {{ email: string, serverName: string, cred: string, userId: string, cToken: string, serverId: string, roleId: string, lToken: string, hgId: string, oauthCode: string, oathUid: string }} data
+ * @param {{ email: string, serverName: string, cred: string, userId: string, cToken: string, serverId: string, roleId: string, loginToken: string, hgId: string, oauthCode: string, oathUid: string }} data
  * @returns {Promise<void>}
  */
 export async function createUser(
   dcid,
-  { email, serverName, cred, userId, cToken, serverId, roleId, lToken, hgId, oauthCode, oathUid }
+  {
+    email,
+    serverName,
+    cred,
+    userId,
+    cToken,
+    serverId,
+    roleId,
+    loginToken,
+    hgId,
+    oauthCode,
+    oathUid,
+  }
 ) {
   await db.transaction(async (tx) => {
     await tx.insert(users).values({ dcid }).onConflictDoNothing();
@@ -23,7 +35,7 @@ export async function createUser(
       cToken,
       serverId,
       roleId,
-      lToken,
+      loginToken,
       hgId,
       oauthCode,
       oathUid,
@@ -46,7 +58,7 @@ export async function createUser(
  *   userId: string,
  *   cred: string,
  *   cToken: string,
- *   lToken: string,
+ *   loginToken: string,
  *   hgId: string,
  *   oauthCode: string,
  *   oathUid: string,
@@ -68,7 +80,7 @@ export async function getUser(dcid) {
       userId: skport.userId,
       cred: skport.cred,
       cToken: skport.cToken,
-      lToken: skport.lToken,
+      loginToken: skport.loginToken,
       hgId: skport.hgId,
       oauthCode: skport.oauthCode,
       oathUid: skport.oathUid,

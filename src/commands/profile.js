@@ -11,6 +11,7 @@ import { createEvent, getUser } from '../db/queries.js';
 import { cardDetail, generateCredByCode, grantOAuth } from '../skport/api/index.js';
 import { computeSign } from '../skport/util/computeSign.js';
 import { MessageTone, noUserContainer } from '../utils/containers.js';
+import { ProfessionEmojis, ProfileEmojis, PropertyEmojis, RarityEmoji } from '../utils/emojis.js';
 import { privacy } from '../utils/privacy.js';
 
 export default {
@@ -52,7 +53,8 @@ export default {
       flags: [MessageFlags.IsComponentsV2],
     });
 
-    const oauth = await grantOAuth({ token: user.lToken, type: 0 });
+    // Refresh the OAuth token with a new one
+    const oauth = await grantOAuth({ token: user.loginToken, type: 0 });
     if (!oauth || oauth.status !== 0) {
       return;
     }
@@ -97,9 +99,9 @@ export default {
         textDisplay.setContent(
           [
             `## // ${profile.data.base.name}`,
-            `> Awakening Day: <t:${profile.data.base.createTime}:f>`,
-            `> UID: ${privacy(profile.data.base.roleId, user.isPrivate)}`,
-            `> Server: ${profile.data.base.serverName}`,
+            `>> Awakening Day: <t:${profile.data.base.createTime}:D>`,
+            `>> UID: ${privacy(profile.data.base.roleId, user.isPrivate)}`,
+            `>> Server: ${profile.data.base.serverName}`,
           ].join('\n')
         )
       )
@@ -113,6 +115,8 @@ export default {
         `Operators: ${profile.data.base.charNum}`,
         `Weapons: ${profile.data.base.weaponNum}`,
         `Archives: ${profile.data.base.docNum}`,
+        `Path of Glory: ${profile.data.achieve.count}`,
+        `Control Nexux Level: ${profile.data.spaceShip.rooms.find((r) => r.id === 'control_center')?.level}`,
       ].join('\n')
     );
     profileContainer.addTextDisplayComponents(statTextDisplay);
@@ -121,38 +125,42 @@ export default {
 
     const realTimeDataTextDisplay = new TextDisplayBuilder().setContent(
       [
-        `### [ Real-Time Data ]`,
+        `### ${ProfileEmojis.RealTimeData} [ Real-Time Data ]`,
         `Sanity: **${profile.data.dungeon.curStamina}** / ${profile.data.dungeon.maxStamina}`,
-        `Full Recovery <t:${profile.data.dungeon.maxTs}:R>`,
+        profile.data.dungeon.maxTs !== '0' && `Full Recovery <t:${profile.data.dungeon.maxTs}:R>`,
         `Activity Points: **${profile.data.dailyMission.dailyActivation}** / ${profile.data.dailyMission.maxDailyActivation}`,
         `Protocol Pass: **${profile.data.bpSystem.curLevel}** / ${profile.data.bpSystem.maxLevel}`,
-      ].join('\n')
+      ]
+        .filter(Boolean)
+        .join('\n')
     );
     profileContainer.addTextDisplayComponents(realTimeDataTextDisplay);
 
     const domains = profile.data.domain
       .flatMap((d) => [
         `**${d.name}** Lv.${d.level}`,
-        ...d.settlements.map((s) => `-# ${s.name}: ${s.level}`),
+        ...d.settlements.map((s) => `-# - ${s.name}: ${s.level}`),
       ])
       .join('\n');
 
     profileContainer.addTextDisplayComponents((textDisplay) =>
-      textDisplay.setContent(`### [ Regional Development ]\n${domains}`)
+      textDisplay.setContent(
+        `### ${ProfileEmojis.RegionalDevelopment} [ Regional Development ]\n${domains}`
+      )
     );
 
     profileContainer.addTextDisplayComponents((textDisplay) =>
-      textDisplay.setContent('### [ Operators ]')
+      textDisplay.setContent(`### ${ProfileEmojis.Operator} [ Operators ]`)
     );
 
-    for (const operator of profile.data.chars.slice(0, 4)) {
+    for (const operator of profile.data.chars.slice(0, 3)) {
       profileContainer.addSectionComponents((section) =>
         section
           .addTextDisplayComponents((textDisplay) =>
             textDisplay.setContent(
               [
-                `**${operator.charData.name}** tempIcon tempIcon`,
-                '%'.repeat(Number(operator.charData.rarity.value)),
+                `**${operator.charData.name}** ${ProfessionEmojis[/** @type {keyof typeof ProfessionEmojis} */ (operator.charData.profession.value)]} ${PropertyEmojis[/** @type {keyof typeof PropertyEmojis} */ (operator.charData.property.value)]}`,
+                `${RarityEmoji}`.repeat(Number(operator.charData.rarity.value)),
                 `Recruited <t:${operator.ownTs}:F>`,
                 `Level: ${operator.level}`,
               ].join('\n')

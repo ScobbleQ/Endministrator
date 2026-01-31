@@ -27,7 +27,7 @@ export const skport = pgTable(
     cToken: text('c_token').notNull(),
     serverId: text('server_id').notNull(),
     roleId: text('role_id').notNull(),
-    lToken: text('l_token').notNull(),
+    loginToken: text('login_token').notNull(),
     hgId: text('hg_id').notNull(),
     oauthCode: text('oauth_code').notNull(),
     email: text().notNull(),

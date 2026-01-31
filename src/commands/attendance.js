@@ -36,7 +36,7 @@ export default {
       });
     }
 
-    const oauth = await grantOAuth({ token: user.lToken, type: 0 });
+    const oauth = await grantOAuth({ token: user.loginToken, type: 0 });
     if (!oauth || oauth.status !== 0) {
       return;
     }
