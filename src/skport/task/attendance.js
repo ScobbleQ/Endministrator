@@ -15,6 +15,7 @@ export async function checkAttendance(client) {
   await new Promise((resolve) => setTimeout(resolve, delay));
 
   const users = await getAllUsersWithAttendance();
+  console.info(`[Cron:Attendance] Checking attendance for ${users.length} users`);
   const limit = pLimit(10);
 
   const task = users.map((u) =>
@@ -73,9 +74,7 @@ export async function checkAttendance(client) {
 
         if (u.notifyAttendance) {
           const container = new ContainerBuilder().addTextDisplayComponents((textDisplay) =>
-            textDisplay.setContent(
-              '## Daily Attendance Summary\n-# <t:${Math.floor(Date.now() / 1000)}:F>'
-            )
+            textDisplay.setContent(`# Sign-in Summary\n-# <t:${Math.floor(Date.now() / 1000)}:F>`)
           );
 
           container.addSeparatorComponents((separator) => separator);
@@ -96,11 +95,11 @@ export async function checkAttendance(client) {
               flags: [MessageFlags.IsComponentsV2],
             });
           } catch (error) {
-            console.error(`[Attendance] Failed to DM user ${u.dcid}:`, error);
+            console.error(`[Cron:Attendance] Failed to DM user ${u.dcid}:`, error);
           }
         }
       } catch (error) {
-        console.error(`[Attendance] Error checking attendance for user ${u.dcid}:`, error);
+        console.error(`[Cron:Attendance] Error checking attendance for user ${u.dcid}:`, error);
       }
     })
   );
