@@ -1,12 +1,112 @@
 # Endministrator
 
-Discord bot for Arkknights: Endfield
+A Discord bot for **Arknights: Endfield** with utility commands to enhance your experience.
 
-### Adding:
+[Features](#features) |
+[Screenshots](#screenshots) |
+[Using the bot](#using-the-bot) |
+[Commands](#commands)
 
-You can use the hosted version or host the discord bot yourself</br>
-https://discord.com/oauth2/authorize?client_id=1463987008157389005
+## Features
 
-### Self Hosting
+- Automatic Sign-in: Daily attendance is checked automatically—no need to remember
+- Profile view: View your in-game profile with real-time data
+- Characters: Browse all Endfield characters with detailed info
+- Wiki: uick access to operators, weapons, facilities, gear, missions, and more
 
-Clone this repo and create an `.env` file with the variables shown in example.env
+## Screenshots
+
+<div class="display: flex">
+  <img src="assets/github/signin.png" alt="Sign-in flow" height="280" />
+  <img src="assets/github/profile.png" alt="Profile view" height="280" />
+  <img src="assets/github/characters.png" alt="Character list" height="280" />
+</div>
+
+## Using the Bot
+
+### Hosted Version (Recommended)
+
+The bot is hosted with a centralized database and 24/7 uptime. Get instant updates and skip the setup.
+
+**[Invite Endministrator to your server](https://discord.com/oauth2/authorize?client_id=1463987008157389005)**
+
+### Self-Hosted
+
+#### Prerequisites
+
+- **Node.js** 18+
+- **PostgreSQL** database
+- Discord [Application](https://discord.com/developers/applications) (Bot token, Client ID, Client Secret)
+
+#### Setup
+
+1. **Clone the repository**
+
+   ```bash
+   git clone https://github.com/ScobbleQ/Endministrator.git
+   cd Endministrator
+   ```
+
+2. **Install dependencies**
+
+   ```bash
+   npm install
+   ```
+
+3. **Configure environment**
+
+   ```bash
+   cp example.env .env
+   ```
+
+   Edit `.env` and fill in:
+
+   | Variable        | Description                                                               |
+   | --------------- | ------------------------------------------------------------------------- |
+   | `TOKEN`         | Discord bot token                                                         |
+   | `CLIENT_ID`     | Discord application client ID                                             |
+   | `CLIENT_SECRET` | Discord application client secret                                         |
+   | `DATABASE_URL`  | PostgreSQL connection string (e.g. `postgresql://user:pass@host:5432/db`) |
+   | `ENVIRONMENT`   | `development` or `production`                                             |
+
+4. **Initialize the database**
+
+   ```bash
+   npx drizzle-kit push
+   ```
+
+5. **Deploy slash commands**
+
+   ```bash
+   npm run deploy
+   ```
+
+6. **Start the bot**
+
+   ```bash
+   npm start
+   ```
+
+#### Database Scripts
+
+- `npm run db:studio` — Open Drizzle Studio to inspect or edit data
+- `npm run db:pull` — Pull schema from an existing database
+
+## Commands
+
+| Command       | Description                                         |
+| ------------- | --------------------------------------------------- |
+| `/login`      | Link your SKPort account to Discord                 |
+| `/profile`    | View your in-game profile                           |
+| `/characters` | Browse all Endfield characters                      |
+| `/wiki`       | Search the Endfield wiki (operators, weapons, etc.) |
+| `/attendance` | Claim daily sign-in rewards manually                |
+| `/about`      | About the bot                                       |
+
+## Contributing
+
+Feature requests and contributions are welcome. Open an [issue](https://github.com/ScobbleQ/Endministrator/issues) or submit a pull request.
+
+## License
+
+[GPL-3.0-only](LICENSE)

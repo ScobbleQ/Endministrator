@@ -9,6 +9,8 @@
     "start": "node index.js",
     "lint": "eslint . --fix",
     "format": "prettier --write .",
+    "db:push": "drizzle-kit push",
+    "db:generate": "drizzle-kit generate",
     "db:pull": "drizzle-kit pull",
     "db:studio": "drizzle-kit studio"
   },
