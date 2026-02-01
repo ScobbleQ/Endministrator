@@ -3,7 +3,7 @@ import { BotConfig } from '../../config.js';
 import { createEvent, getUser } from '../db/queries.js';
 import { attendance, generateCredByCode, grantOAuth } from '../skport/api/index.js';
 import { computeSign } from '../skport/util/computeSign.js';
-import { MessageTone, noUserContainer } from '../utils/containers.js';
+import { MessageTone, noUserContainer, textContainer } from '../utils/containers.js';
 
 export default {
   data: new SlashCommandBuilder()
@@ -53,26 +53,30 @@ export default {
       body: '{}',
     });
 
-    const e = await attendance({
+    const signin = await attendance({
       cred: cred.data.cred,
       sign: sign,
       uid: user.roleId,
       serverId: user.serverId,
     });
 
-    if (!e || e.status !== 0) {
+    if (!signin || signin.status !== 0) {
+      await interaction.reply({
+        components: [textContainer(`Failed to claim sign-in:\n${signin?.msg ?? 'Unknown error'}`)],
+        flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
+      });
       return;
     }
 
     const attendanceContainer = new ContainerBuilder().addTextDisplayComponents((textDisplay) =>
-      textDisplay.setContent(`## Daily Attendance Claimed`)
+      textDisplay.setContent(`# Daily Sign-in Claimed`)
     );
 
-    for (const resource of e.data) {
+    for (const resource of signin.data) {
       attendanceContainer.addSectionComponents((section) =>
         section
           .addTextDisplayComponents((textDisplay) =>
-            textDisplay.setContent(`${resource.name}\nx${resource.count}`)
+            textDisplay.setContent(`### ${resource.name}\nAmount: **${resource.count}**`)
           )
           .setThumbnailAccessory((thumbnail) => thumbnail.setURL(resource.icon))
       );

@@ -1,3 +1,5 @@
+// Depending on how long lived the login token is, we may add a different modal for just login token input
+// This gives the user to use bot without providing their email and password
 import {
   ButtonStyle,
   ContainerBuilder,
