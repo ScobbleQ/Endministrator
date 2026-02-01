@@ -48,6 +48,12 @@ export default {
         await reply(interaction, 'There was an error while executing this autocomplete');
       }
     } else if (interaction.isButton()) {
+      // Ensure only owner is able to use the button
+      if (interaction.user.id !== interaction.message.interactionMetadata?.user.id) {
+        await reply(interaction, 'You are not the owner of this message');
+        return;
+      }
+
       const [commandName, ...args] = interaction.customId.split('-');
       const command =
         /** @type {import("discord.js").Client & { commands: import("discord.js").Collection<string, any> }} */ (
@@ -86,6 +92,12 @@ export default {
         await reply(interaction, 'There was an error while executing this modal');
       }
     } else if (interaction.isStringSelectMenu()) {
+      // Ensure only owner is able to use the select menu
+      if (interaction.user.id !== interaction.message.interactionMetadata?.user.id) {
+        await reply(interaction, 'You are not the owner of this message');
+        return;
+      }
+
       const [commandName, ...args] = interaction.customId.split('-');
       const command =
         /** @type {import("discord.js").Client & { commands: import("discord.js").Collection<string, any> }} */ (

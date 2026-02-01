@@ -170,12 +170,17 @@ const buildCatalogContainer = (chars, { page, profession, element }) => {
         new ButtonBuilder()
           .setCustomId(`characters-page-prev-${prevStateStr}`)
           .setLabel('Previous')
-          .setStyle(ButtonStyle.Secondary)
+          .setStyle(clampedPage === 0 ? ButtonStyle.Secondary : ButtonStyle.Primary)
           .setDisabled(clampedPage === 0),
+        new ButtonBuilder()
+          .setCustomId(`characters-page-display`)
+          .setLabel(`${clampedPage + 1} / ${totalPages}`)
+          .setStyle(ButtonStyle.Secondary)
+          .setDisabled(true),
         new ButtonBuilder()
           .setCustomId(`characters-page-next-${nextStateStr}`)
           .setLabel('Next')
-          .setStyle(ButtonStyle.Secondary)
+          .setStyle(clampedPage >= totalPages - 1 ? ButtonStyle.Secondary : ButtonStyle.Primary)
           .setDisabled(clampedPage >= totalPages - 1)
       )
     );
