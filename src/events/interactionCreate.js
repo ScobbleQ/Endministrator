@@ -86,6 +86,24 @@ export default {
         await reply(interaction, 'There was an error while executing this modal');
       }
     } else if (interaction.isStringSelectMenu()) {
+      const [commandName, ...args] = interaction.customId.split('-');
+      const command =
+        /** @type {import("discord.js").Client & { commands: import("discord.js").Collection<string, any> }} */ (
+          client
+        ).commands.get(commandName);
+
+      if (!command || typeof command.selectMenu !== 'function') {
+        console.error(`[Discord] Select menu command ${commandName} not found`);
+        await reply(interaction, 'Select menu command not found');
+        return;
+      }
+
+      try {
+        await command.selectMenu(interaction, ...args);
+      } catch (error) {
+        console.error(`[Discord] Error executing select menu command ${commandName}:`, error);
+        await reply(interaction, 'There was an error while executing this select menu');
+      }
     } else {
       console.error(`[Discord] Unhandled interaction type: ${interaction.type}`);
       await reply(interaction, 'Unknown interaction type');

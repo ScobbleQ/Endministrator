@@ -29,3 +29,13 @@ export function alreadyLoggedInContainer({ tone = MessageTone.Formal }) {
     textDisplay.setContent(msg)
   );
 }
+
+/**
+ * @param {string} text
+ * @returns {ContainerBuilder}
+ */
+export function textContainer(text) {
+  return new ContainerBuilder().addTextDisplayComponents((textDisplay) =>
+    textDisplay.setContent(text)
+  );
+}

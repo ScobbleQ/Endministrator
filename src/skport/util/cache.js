@@ -161,4 +161,23 @@ function createCache(ttl = 5 * 60 * 1000) {
   return new Cache(ttl);
 }
 
-export { Cache, getOrSet, createCache };
+/** @type {Map<string, Cache<any>>} */
+const cacheRegistry = new Map();
+
+/**
+ * Get or create a named cache instance. Shared across the app; same name returns the same cache.
+ * @template T
+ * @param {string} name - Unique cache identifier
+ * @param {number} [ttl=5 * 60 * 1000] - Time to live in milliseconds (used only on first creation)
+ * @returns {Cache<T>}
+ */
+function getOrCreateCache(name, ttl = 5 * 60 * 1000) {
+  let cache = cacheRegistry.get(name);
+  if (!cache) {
+    cache = new Cache(ttl);
+    cacheRegistry.set(name, cache);
+  }
+  return cache;
+}
+
+export { Cache, getOrSet, createCache, getOrCreateCache };

@@ -8,8 +8,7 @@ import {
 } from 'discord.js';
 import { BotConfig } from '../../config.js';
 import { createEvent, getUser } from '../db/queries.js';
-import { cardDetail, generateCredByCode, grantOAuth } from '../skport/api/index.js';
-import { computeSign } from '../skport/util/computeSign.js';
+import { getCachedCardDetail } from '../skport/util/getCachedCardDetail.js';
 import { MessageTone, noUserContainer } from '../utils/containers.js';
 import { ProfessionEmojis, ProfileEmojis, PropertyEmojis, RarityEmoji } from '../utils/emojis.js';
 import { privacy } from '../utils/privacy.js';
@@ -53,31 +52,7 @@ export default {
       flags: [MessageFlags.IsComponentsV2],
     });
 
-    // Refresh the OAuth token with a new one
-    const oauth = await grantOAuth({ token: user.loginToken, type: 0 });
-    if (!oauth || oauth.status !== 0) {
-      return;
-    }
-
-    // @ts-ignore: code is guaranteed since we are using type 0
-    const cred = await generateCredByCode({ code: oauth.data.code });
-    if (!cred || cred.status !== 0) {
-      return;
-    }
-
-    const signToken = computeSign({
-      token: cred.data.token,
-      path: '/api/v1/game/endfield/card/detail',
-      body: '',
-    });
-
-    const profile = await cardDetail({
-      serverId: user.serverId,
-      roleId: user.roleId,
-      userId: cred.data.userId,
-      cred: cred.data.cred,
-      signToken: signToken,
-    });
+    const profile = await getCachedCardDetail(interaction.user.id);
 
     if (!profile || profile.status !== 0) {
       const errorContainer = new ContainerBuilder().addTextDisplayComponents((textDisplay) =>

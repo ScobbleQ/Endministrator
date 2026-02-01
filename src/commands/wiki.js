@@ -1,19 +1,13 @@
-import {
-  ContainerBuilder,
-  MessageFlags,
-  SectionBuilder,
-  SlashCommandBuilder,
-  TextDisplayBuilder,
-} from 'discord.js';
+import { ContainerBuilder, MessageFlags, SlashCommandBuilder } from 'discord.js';
 import { getOperators } from '../skport/api/wiki/operators.js';
 import { getWeapons } from '../skport/api/wiki/weapons.js';
-import { createCache, getOrSet } from '../skport/util/cache.js';
+import { getOrCreateCache, getOrSet } from '../skport/util/cache.js';
 import { resolveSubType } from '../skport/util/resolveSubType.js';
 
 /** @typedef {import('../skport/util/typedef.js').WikiApiResponse} WikiApiResponse */
 
-// Wiki cache for faster autocomplete (5 minutes TTL)
-const wikiCache = createCache(5 * 60 * 1000);
+const WIKI_TTL = 5 * 60 * 1000; // 5 minutes
+const wikiCache = getOrCreateCache('wiki', WIKI_TTL);
 
 export default {
   data: new SlashCommandBuilder()
