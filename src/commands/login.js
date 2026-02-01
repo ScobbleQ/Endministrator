@@ -81,9 +81,9 @@ export default {
   async button(interaction) {
     const user = await getUser(interaction.user.id);
     if (user) {
-      await interaction.reply({
+      await interaction.update({
         components: [alreadyLoggedInContainer({ tone: MessageTone.Informal })],
-        flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
+        flags: [MessageFlags.IsComponentsV2],
       });
       return;
     }
