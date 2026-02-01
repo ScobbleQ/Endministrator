@@ -12,7 +12,7 @@ A Discord bot for **Arknights: Endfield** with utility commands to enhance your 
 - Automatic Sign-in: Daily attendance is checked automatically—no need to remember
 - Profile view: View your in-game profile with real-time data
 - Characters: Browse all Endfield characters with detailed info
-- Wiki: uick access to operators, weapons, facilities, gear, missions, and more
+- Wiki: Quick access to operators, weapons, facilities, gear, missions, and more
 
 ## Screenshots
 
@@ -72,7 +72,7 @@ The bot is hosted with a centralized database and 24/7 uptime. Get instant updat
 4. **Initialize the database**
 
    ```bash
-   npx drizzle-kit push
+   npm run db:migrate
    ```
 
 5. **Deploy slash commands**
@@ -89,8 +89,9 @@ The bot is hosted with a centralized database and 24/7 uptime. Get instant updat
 
 #### Database Scripts
 
+- `npm run db:migrate` — Apply migrations to the database (for fresh setups)
 - `npm run db:studio` — Open Drizzle Studio to inspect or edit data
-- `npm run db:pull` — Pull schema from an existing database
+- `npm run db:pull` — Pull schema from an existing database (updates drizzle folder)
 
 ## Commands
 
