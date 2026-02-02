@@ -11,10 +11,7 @@ export default {
     .setDescription('Attendance to SKPort')
     .setIntegrationTypes([0, 1])
     .setContexts([0, 1, 2]),
-  /**
-   * @param {import("discord.js").ChatInputCommandInteraction} interaction
-   * @returns {Promise<void>}
-   */
+  /** @param {import("discord.js").ChatInputCommandInteraction} interaction */
   async execute(interaction) {
     const user = await getUser(interaction.user.id);
     if (!user) {
@@ -31,7 +28,6 @@ export default {
         metadata: {
           type: 'slash',
           command: 'attendance',
-          timestamp: Date.now(),
         },
       });
     }
@@ -69,7 +65,7 @@ export default {
     }
 
     const attendanceContainer = new ContainerBuilder().addTextDisplayComponents((textDisplay) =>
-      textDisplay.setContent(`# Daily Sign-in Claimed`)
+      textDisplay.setContent(`# ▼// Today's Sign-in Rewards`)
     );
 
     for (const resource of signin.data) {

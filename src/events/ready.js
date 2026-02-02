@@ -1,6 +1,7 @@
 import { Events } from 'discord.js';
 import { CronJob } from 'cron';
-import { checkAttendance } from '../skport/task/attendance.js';
+import { deleteUser } from '../db/queries.js';
+import { checkAttendance, refreshLoginToken } from '../skport/task/index.js';
 import { rotatePresence } from '../utils/rotatePresence.js';
 
 export default {
@@ -28,6 +29,17 @@ export default {
     new CronJob(
       '5 12 * * *',
       () => checkAttendance(client),
+      null,
+      true,
+      'America/New_York',
+      null,
+      false
+    );
+
+    // Refresh token every 48 hours
+    new CronJob(
+      '0 0 */48 * * *',
+      () => refreshLoginToken(),
       null,
       true,
       'America/New_York',

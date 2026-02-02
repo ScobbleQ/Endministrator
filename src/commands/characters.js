@@ -91,7 +91,7 @@ const buildCatalogContainer = (chars, { page, profession, element }) => {
   const stateStr = `${clampedPage}:${profession}:${element}`;
 
   const container = new ContainerBuilder().addTextDisplayComponents((textDisplay) =>
-    textDisplay.setContent('# Operators')
+    textDisplay.setContent('# ▼// Owned Operators')
   );
 
   container.addActionRowComponents((actionRow) =>
@@ -257,7 +257,6 @@ export default {
       filtered.map((c) => ({ name: c.charData.name, value: c.charData.id }))
     );
   },
-
   /** @param {import('discord.js').ChatInputCommandInteraction} interaction */
   async execute(interaction) {
     const selected = interaction.options.getString('name');
@@ -289,7 +288,6 @@ export default {
       flags: [MessageFlags.IsComponentsV2],
     });
   },
-
   /** @param {import('discord.js').ButtonInteraction} interaction @param {...string} args */
   async button(interaction, ...args) {
     const { action, payload } = parseButtonArgs(args);
@@ -316,7 +314,6 @@ export default {
       await interaction.editReply({ components: [container] });
     }
   },
-
   /** @param {import('discord.js').StringSelectMenuInteraction} interaction @param {...string} args */
   async selectMenu(interaction, ...args) {
     const [filterType, filterWhich, stateStr] = args;

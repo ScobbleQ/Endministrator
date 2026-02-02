@@ -75,7 +75,7 @@ export async function checkAttendance(client) {
         if (u.notifyAttendance) {
           const container = new ContainerBuilder().addTextDisplayComponents((textDisplay) =>
             textDisplay.setContent(
-              `# Daily Sign-in Summary\n-# <t:${Math.floor(Date.now() / 1000)}:F>`
+              `# ▼// Daily Sign-in Summary\n-# <t:${Math.floor(Date.now() / 1000)}:F>`
             )
           );
 

@@ -121,6 +121,10 @@ export async function deleteUser(dcid) {
   await db.delete(users).where(eq(users.dcid, dcid));
 }
 
+export async function getAllUsers() {
+  return await db.select({ dcid: users.dcid }).from(users);
+}
+
 /**
  * Create an event in the database
  * @param {string} dcid
@@ -159,6 +163,19 @@ export async function getSkportUser(dcid) {
   }
 
   return skportData[0];
+}
+
+/**
+ *
+ * @param {string} dcid
+ * @param {{ key: keyof typeof skport, value: any }} data
+ * @returns {Promise<void>}
+ */
+export async function updateSkportUser(dcid, { key, value }) {
+  await db
+    .update(skport)
+    .set({ [key]: value })
+    .where(eq(skport.dcid, dcid));
 }
 
 export async function getAllUsersWithAttendance() {

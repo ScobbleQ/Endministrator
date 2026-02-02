@@ -19,10 +19,7 @@ export default {
     .setDescription('Get your profile information')
     .setIntegrationTypes([0, 1])
     .setContexts([0, 1, 2]),
-  /**
-   * @param {import("discord.js").ChatInputCommandInteraction} interaction
-   * @returns {Promise<void>}
-   */
+  /** @param {import("discord.js").ChatInputCommandInteraction} interaction */
   async execute(interaction) {
     const user = await getUser(interaction.user.id);
     if (!user) {
@@ -39,7 +36,6 @@ export default {
         metadata: {
           type: 'slash',
           command: 'profile',
-          timestamp: Date.now(),
         },
       });
     }
@@ -47,22 +43,22 @@ export default {
     const loadingContainer = new ContainerBuilder().addTextDisplayComponents((textDisplay) =>
       textDisplay.setContent('Loading profile information...')
     );
+
     await interaction.reply({
       components: [loadingContainer],
       flags: [MessageFlags.IsComponentsV2],
     });
 
     const profile = await getCachedCardDetail(interaction.user.id);
-
     if (!profile || profile.status !== 0) {
       const errorContainer = new ContainerBuilder().addTextDisplayComponents((textDisplay) =>
         textDisplay.setContent(
-          `##m[${profile.status}] Failed to get profile information\n${codeBlock('json', profile.msg)}`
+          `## [${profile.status}] Failed to get profile information\n${codeBlock('json', profile.msg)}`
         )
       );
-      await interaction.reply({
+      await interaction.editReply({
         components: [errorContainer],
-        flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
+        flags: [MessageFlags.IsComponentsV2],
       });
       return;
     }
@@ -73,7 +69,7 @@ export default {
       .addTextDisplayComponents((textDisplay) =>
         textDisplay.setContent(
           [
-            `## // ${profile.data.base.name}`,
+            `## ▼// ${profile.data.base.name}`,
             `>> Awakening Day: <t:${profile.data.base.createTime}:D>`,
             `>> UID: ${privacy(profile.data.base.roleId, user.isPrivate)}`,
             `>> Server: ${profile.data.base.serverName}`,

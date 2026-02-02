@@ -2,10 +2,7 @@ import { MessageFlags, SlashCommandBuilder } from 'discord.js';
 
 export default {
   data: new SlashCommandBuilder().setName('about').setDescription('About the bot'),
-  /**
-   * @param {import("discord.js").ChatInputCommandInteraction} interaction
-   * @returns {Promise<void>}
-   */
+  /** @param {import("discord.js").ChatInputCommandInteraction} interaction */
   async execute(interaction) {
     await interaction.reply({ content: 'Coming soon...', flags: [MessageFlags.Ephemeral] });
   },

@@ -46,6 +46,8 @@ export async function tokenByEmailPassword(email, password) {
       return { status: -1, msg: data.msg };
     }
 
+    // Maybe ask the user to complete the captcha if status is 1 (data.data.captcha is present)
+
     return { status: 0, data: data.data };
   } catch (error) {
     return { status: -1, msg: /** @type {Error} */ (error).message };

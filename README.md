@@ -1,5 +1,9 @@
 # Endministrator
 
+> [!IMPORTANT]
+> This bot is still in the early beta phase, features may not work as intended<br />
+> All data may be wiped once fully released
+
 A Discord bot for **Arknights: Endfield** with utility commands to enhance your experience.
 
 [Features](#features) |
@@ -17,9 +21,9 @@ A Discord bot for **Arknights: Endfield** with utility commands to enhance your 
 ## Screenshots
 
 <div class="display: flex">
-  <img src="assets/github/signin.png" alt="Sign-in flow" height="280" />
+  <img src="assets/github/signin.png" alt="Sign-in notification" height="280" />
   <img src="assets/github/profile.png" alt="Profile view" height="280" />
-  <img src="assets/github/characters.png" alt="Character list" height="280" />
+  <img src="assets/github/characters.png" alt="Character list catalog" height="280" />
 </div>
 
 ## Using the Bot

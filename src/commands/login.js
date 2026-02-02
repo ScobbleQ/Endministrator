@@ -29,10 +29,7 @@ export default {
     .setDescription('Login to SKPort')
     .setIntegrationTypes([0, 1])
     .setContexts([0, 1, 2]),
-  /**
-   * @param {import("discord.js").ChatInputCommandInteraction} interaction
-   * @returns {Promise<void>}
-   */
+  /** @param {import("discord.js").ChatInputCommandInteraction} interaction */
   async execute(interaction) {
     const user = await getUser(interaction.user.id);
     if (user) {
@@ -42,7 +39,6 @@ export default {
           metadata: {
             type: 'slash',
             command: 'login',
-            timestamp: Date.now(),
           },
         });
       }
@@ -58,7 +54,7 @@ export default {
 
     const textDisplay = new TextDisplayBuilder().setContent(
       [
-        '## Login to SKPort - Gryphline Community',
+        '## ▼// Login to SKPort - Gryphline Community',
         'By clicking the button below, you agree to our [Terms of Service](https://github.com/ScobbleQ/Endministrator) and [Privacy Policy](https://github.com/ScobbleQ/Endministrator).',
         '',
         'The source code is avaialable on [GitHub](https://github.com/ScobbleQ/Endministrator) if you have any doubts to how we handle your login proccess and data. Rest assured, we do not store any of your login credentials after the login process is completed.',
@@ -77,9 +73,7 @@ export default {
       flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
     });
   },
-  /**
-   * @param {import("discord.js").ButtonInteraction} interaction
-   */
+  /** @param {import("discord.js").ButtonInteraction} interaction */
   async button(interaction) {
     const user = await getUser(interaction.user.id);
     if (user) {
@@ -117,15 +111,15 @@ export default {
     modal.addLabelComponents(emailLabel, passwordLabel);
     await interaction.showModal(modal);
   },
-  /**
-   * @param {import("discord.js").ModalSubmitInteraction} interaction
-   */
+  /** @param {import("discord.js").ModalSubmitInteraction} interaction */
   async modal(interaction) {
+    await interaction.deferUpdate();
+
     const user = await getUser(interaction.user.id);
     if (user) {
       await interaction.reply({
         components: [alreadyLoggedInContainer({ tone: MessageTone.Informal })],
-        flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
+        flags: [MessageFlags.IsComponentsV2],
       });
       return;
     }
@@ -137,9 +131,9 @@ export default {
       textDisplay.setContent('Attempting to login...')
     );
 
-    await interaction.reply({
+    await interaction.editReply({
       components: [initContainer],
-      flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
+      flags: [MessageFlags.IsComponentsV2],
     });
 
     try {
@@ -154,6 +148,7 @@ export default {
         });
         return;
       }
+      console.log('login', login.data);
 
       // Login is successful, now get the needed data to continue
       const loginSuccessContainer = new ContainerBuilder().addTextDisplayComponents((textDisplay) =>
@@ -176,6 +171,7 @@ export default {
         });
         return;
       }
+      console.log('oauth', oauth.data);
 
       // @ts-ignore: code is guaranteed since we are using type 0
       const cred = await generateCredByCode({ code: oauth.data.code });
@@ -189,6 +185,7 @@ export default {
         });
         return;
       }
+      console.log('cred', cred.data);
 
       // Sign the token for the binding API
       const signature = computeSign({
@@ -196,6 +193,7 @@ export default {
         path: '/api/v1/game/player/binding',
         body: '{}',
       });
+      console.log('signature', signature);
 
       const binding = await getBinding({ cred: cred.data.cred, sign: signature });
       if (!binding || binding.status !== 0) {
@@ -208,6 +206,7 @@ export default {
         });
         return;
       }
+      console.log('binding', binding.data);
 
       const endfield = binding.data.find((b) => b.appCode === 'endfield');
       if (!endfield) {
@@ -220,6 +219,7 @@ export default {
         });
         return;
       }
+      console.log('endfield', endfield);
 
       // Get default role from the binding, fallback to first role
       const selectedBinding =
@@ -228,6 +228,7 @@ export default {
         selectedBinding.defaultRole ??
         selectedBinding.roles?.find((r) => r.isDefault) ??
         selectedBinding.roles?.[0];
+      console.log('roleInfo', roleInfo);
 
       if (!roleInfo) {
         const noRoleContainer = new ContainerBuilder().addTextDisplayComponents((textDisplay) =>

@@ -1,16 +1,39 @@
 import UserAgent from 'user-agents';
 
+const ACCOUNT_TOKEN_PREFIX = 'ACCOUNT_TOKEN=';
+
+/**
+ * Extract and URL-decode ACCOUNT_TOKEN from Set-Cookie header strings.
+ * @param {string[]} setCookies
+ * @returns {string | null}
+ */
+function parseAccountTokenFromSetCookies(setCookies) {
+  for (const cookie of setCookies) {
+    if (!cookie.startsWith(ACCOUNT_TOKEN_PREFIX)) continue;
+    const rest = cookie.slice(ACCOUNT_TOKEN_PREFIX.length);
+    const value = rest.split(';')[0].trim();
+    try {
+      return decodeURIComponent(value);
+    } catch {
+      return value;
+    }
+  }
+  return null;
+}
+
 /**
  * Get account token from the API
- * @param {string} token
- * @returns {Promise<{ status: -1, msg: string } | { status: 0, data: string[] }>}
+ * @param {string} accountToken
+ * @param {string} skOAuthCredKey
+ * @param {string} hgInfoKey
+ * @returns {Promise<{ status: -1, msg: string } | { status: 0, data: string }>}
  * @example
  * const login = await tokenByEmailPassword('test@example.com', 'password');
  *
  * const accountToken = await accountToken(login.data.token);
  * console.dir(accountToken, { depth: null });
  */
-export async function accountToken(token) {
+export async function accountToken(accountToken, skOAuthCredKey, hgInfoKey) {
   const url = 'https://web-api.skport.com/cookie_store/account_token';
 
   const headers = {
@@ -18,17 +41,21 @@ export async function accountToken(token) {
     'Accept-Encoding': 'gzip, deflate, br',
     'Accept-Language': 'en-US,en;q=0.9',
     'Cache-Control': 'no-cache',
+    Cookie: `ACCOUNT_TOKEN=${accountToken}; SK_OAUTH_CRED_KEY=${skOAuthCredKey}; HG_INFO_KEY={"hgId":"${hgInfoKey}"};`,
     'Content-Type': 'application/json',
-    Origin: 'https://game.skport.com',
+    Origin: 'https://www.skport.com',
     Pragma: 'no-cache',
     Priority: 'u=3, i',
-    Referer: 'https://game.skport.com/',
+    Referer: 'https://www.skport.com/',
+    'Sec-Fetch-Dest': 'empty',
+    'Sec-Fetch-Mode': 'cors',
+    'Sec-Fetch-Site': 'same-origin',
     'User-Agent': new UserAgent({ deviceCategory: 'desktop' }).toString(),
     'x-language': 'en-us',
   };
 
   const requestData = {
-    content: token,
+    content: accountToken,
   };
 
   try {
@@ -42,11 +69,13 @@ export async function accountToken(token) {
     }
 
     const data = await res.json();
-    if (data.status !== 0) {
+    if (data.code !== 0) {
       return { status: -1, msg: data.msg };
     }
 
-    return { status: 0, data: res.headers.getSetCookie() || [] };
+    const setCookies = res.headers.getSetCookie() || [];
+    const token = parseAccountTokenFromSetCookies(setCookies);
+    return { status: 0, data: token ?? '' };
   } catch (error) {
     return { status: -1, msg: /** @type {Error} */ (error).message };
   }

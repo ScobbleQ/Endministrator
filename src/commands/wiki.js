@@ -40,9 +40,7 @@ export default {
     )
     .setIntegrationTypes([0, 1])
     .setContexts([0, 1, 2]),
-  /**
-   * @param {import("discord.js").AutocompleteInteraction} interaction
-   */
+  /** @param {import("discord.js").AutocompleteInteraction} interaction */
   async autocomplete(interaction) {
     const focusedOption = interaction.options.getFocused(true);
     const category = interaction.options.getString('category');
@@ -67,10 +65,7 @@ export default {
     // Respond with the filtered items
     await interaction.respond(filtered.map((item) => ({ name: item.name, value: item.itemId })));
   },
-  /**
-   * @param {import("discord.js").ChatInputCommandInteraction} interaction
-   * @returns {Promise<void>}
-   */
+  /** @param {import("discord.js").ChatInputCommandInteraction} interaction */
   async execute(interaction) {
     const category = interaction.options.getString('category');
     const query = interaction.options.getString('query');
