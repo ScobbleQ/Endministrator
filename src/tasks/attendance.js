@@ -1,9 +1,9 @@
 import { ContainerBuilder, MessageFlags } from 'discord.js';
 import pLimit from 'p-limit';
-import { BotConfig } from '../../../config.js';
-import { createEvent, getAllUsersWithAttendance, getSkportUser } from '../../db/queries.js';
-import { attendance, generateCredByCode, grantOAuth } from '../api/index.js';
-import { computeSign } from '../util/computeSign.js';
+import { BotConfig } from '../../config.js';
+import { createEvent, getAllUsersWithAttendance, getSkportUser } from '../db/queries.js';
+import { attendance, generateCredByCode, grantOAuth } from '../skport/api/index.js';
+import { computeSign } from '../skport/utils/computeSign.js';
 
 /**
  *

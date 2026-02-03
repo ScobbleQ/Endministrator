@@ -56,8 +56,6 @@ export async function bindingList({ token }) {
   };
 
   try {
-    await fetch(newUrl, { method: 'OPTIONS', headers });
-
     const res = await fetch(newUrl, { headers });
     if (!res.ok) {
       const msg = (await res.text()) || 'Failed to get binding list. Please try again.';

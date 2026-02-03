@@ -1,6 +1,6 @@
 import pLimit from 'p-limit';
-import { getAllUsers, getSkportUser, getUser, updateSkportUser } from '../../db/queries.js';
-import { accountToken, generateCredByCode, grantOAuth } from '../api/index.js';
+import { getAllUsers, getSkportUser, getUser, updateSkportUser } from '../db/queries.js';
+import { accountToken, generateCredByCode, grantOAuth } from '../skport/api/index.js';
 
 /**
  *

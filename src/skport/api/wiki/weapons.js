@@ -1,4 +1,4 @@
-/** @typedef {import('../../util/typedef.js').WikiApiResponse} WikiApiResponse */
+/** @typedef {import('../../utils/typedef.js').WikiApiResponse} WikiApiResponse */
 
 /**
  * Get all weapons from the API

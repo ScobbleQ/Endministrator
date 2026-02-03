@@ -6,8 +6,8 @@ import {
   SlashCommandBuilder,
   StringSelectMenuBuilder,
 } from 'discord.js';
-import { ElementType, Profession } from '../skport/util/constants.js';
-import { getCachedCardDetail } from '../skport/util/getCachedCardDetail.js';
+import { ElementType, Profession } from '../skport/utils/constants.js';
+import { getCachedCardDetail } from '../skport/utils/getCachedCardDetail.js';
 import { textContainer } from '../utils/containers.js';
 import { ProfessionEmojis, PropertyEmojis, RarityEmoji } from '../utils/emojis.js';
 

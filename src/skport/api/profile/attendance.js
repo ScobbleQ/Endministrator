@@ -74,11 +74,6 @@ export async function attendance({ cred, sign, uid, serverId }) {
   };
 
   try {
-    await fetch(url, {
-      method: 'OPTIONS',
-      headers: headers,
-    });
-
     const res = await fetch(url, {
       method: 'POST',
       headers: headers,

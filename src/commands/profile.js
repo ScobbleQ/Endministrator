@@ -8,7 +8,7 @@ import {
 } from 'discord.js';
 import { BotConfig } from '../../config.js';
 import { createEvent, getUser } from '../db/queries.js';
-import { getCachedCardDetail } from '../skport/util/getCachedCardDetail.js';
+import { getCachedCardDetail } from '../skport/utils/getCachedCardDetail.js';
 import { MessageTone, noUserContainer } from '../utils/containers.js';
 import { ProfessionEmojis, ProfileEmojis, PropertyEmojis, RarityEmoji } from '../utils/emojis.js';
 import { privacy } from '../utils/privacy.js';

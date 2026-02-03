@@ -1,9 +1,8 @@
 import { getUser } from '../../db/queries.js';
-import { generateCredByCode } from '../api/auth/generateCredByCode.js';
-import { grantOAuth } from '../api/auth/grant.js';
-import { cardDetail } from '../api/profile/cardDetail.js';
-import { getOrCreateCache, getOrSet } from '../util/cache.js';
-import { computeSign } from '../util/computeSign.js';
+import { generateCredByCode, grantOAuth } from '../api/auth/index.js';
+import { cardDetail } from '../api/profile/index.js';
+import { getOrCreateCache, getOrSet } from './cache.js';
+import { computeSign } from './computeSign.js';
 
 /** @typedef {import('../api/profile/cardDetail.js').CardDetail} CardDetail */
 
@@ -30,7 +29,7 @@ export async function getCachedCardDetail(dcid) {
     const signToken = computeSign({
       token: cred.data.token,
       path: '/api/v1/game/endfield/card/detail',
-      body: '{}',
+      body: '',
     });
 
     const card = await cardDetail({

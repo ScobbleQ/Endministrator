@@ -18,7 +18,7 @@ import {
   grantOAuth,
   tokenByEmailPassword,
 } from '../skport/api/index.js';
-import { computeSign } from '../skport/util/computeSign.js';
+import { computeSign } from '../skport/utils/computeSign.js';
 import { MessageTone, alreadyLoggedInContainer, textContainer } from '../utils/containers.js';
 import { parseCookieToken } from '../utils/parseCookieToken.js';
 

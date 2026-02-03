@@ -1,15 +1,12 @@
 import { Events } from 'discord.js';
 import { CronJob } from 'cron';
-import { deleteUser } from '../db/queries.js';
-import { checkAttendance, refreshLoginToken } from '../skport/task/index.js';
+import { checkAttendance, refreshLoginToken } from '../tasks/index.js';
 import { rotatePresence } from '../utils/rotatePresence.js';
 
 export default {
   name: Events.ClientReady,
   once: true,
-  /**
-   * @param {import("discord.js").Client} client
-   */
+  /** @param {import("discord.js").Client} client */
   async execute(client) {
     console.info(`[Discord] Logged in as ${client.user?.tag}`);
 

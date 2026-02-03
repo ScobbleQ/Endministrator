@@ -2,7 +2,7 @@ import { ContainerBuilder, MessageFlags, SlashCommandBuilder } from 'discord.js'
 import { BotConfig } from '../../config.js';
 import { createEvent, getUser } from '../db/queries.js';
 import { attendance, generateCredByCode, grantOAuth } from '../skport/api/index.js';
-import { computeSign } from '../skport/util/computeSign.js';
+import { computeSign } from '../skport/utils/computeSign.js';
 import { MessageTone, noUserContainer, textContainer } from '../utils/containers.js';
 
 export default {

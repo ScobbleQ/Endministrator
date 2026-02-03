@@ -56,6 +56,9 @@ export async function getBinding({ cred, sign }) {
     Pragma: 'no-cache',
     Priority: 'u=3, i',
     Referer: 'https://game.skport.com/',
+    'Sec-Fetch-Dest': 'empty',
+    'Sec-Fetch-Mode': 'cors',
+    'Sec-Fetch-Site': 'same-site',
     sign: sign,
     'sk-language': 'en',
     timestamp: Math.floor(Date.now() / 1000).toString(),
@@ -64,11 +67,6 @@ export async function getBinding({ cred, sign }) {
   };
 
   try {
-    await fetch(url, {
-      method: 'OPTIONS',
-      headers: headers,
-    });
-
     const res = await fetch(url, {
       method: 'GET',
       headers: headers,

@@ -32,7 +32,8 @@
           "name": "notify_attendance",
           "type": "boolean",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": true
         },
         "enable_attendance": {
           "name": "enable_attendance",
@@ -40,6 +41,13 @@
           "primaryKey": false,
           "notNull": true,
           "default": true
+        },
+        "is_banned": {
+          "name": "is_banned",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         }
       },
       "indexes": {},
@@ -48,7 +56,7 @@
       "uniqueConstraints": {},
       "checkConstraints": {},
       "policies": {},
-      "isRLSEnabled": false
+      "isRLSEnabled": true
     },
     "public.skport": {
       "name": "skport",
@@ -72,8 +80,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "token": {
-          "name": "token",
+        "c_token": {
+          "name": "c_token",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -86,6 +94,42 @@
         },
         "role_id": {
           "name": "role_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "login_token": {
+          "name": "login_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hg_id": {
+          "name": "hg_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "oauth_code": {
+          "name": "oauth_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "oath_uid": {
+          "name": "oath_uid",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "server_name": {
+          "name": "server_name",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -114,7 +158,7 @@
       },
       "checkConstraints": {},
       "policies": {},
-      "isRLSEnabled": false
+      "isRLSEnabled": true
     },
     "public.events": {
       "name": "events",
@@ -180,7 +224,7 @@
       "uniqueConstraints": {},
       "checkConstraints": {},
       "policies": {},
-      "isRLSEnabled": false
+      "isRLSEnabled": true
     }
   },
   "enums": {},

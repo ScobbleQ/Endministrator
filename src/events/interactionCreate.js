@@ -2,9 +2,7 @@ import { Events, MessageFlags } from 'discord.js';
 
 export default {
   name: Events.InteractionCreate,
-  /**
-   * @param {import("discord.js").Interaction} interaction
-   */
+  /** @param {import("discord.js").Interaction} interaction */
   async execute(interaction) {
     const client = interaction.client;
 
