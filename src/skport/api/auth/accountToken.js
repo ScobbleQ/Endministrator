@@ -60,7 +60,7 @@ export async function accountToken(accountToken, skOAuthCredKey, hgInfoKey) {
 
   try {
     // Options preflight
-    await fetch(url, { method: 'OPTIONS', headers });
+    // await fetch(url, { method: 'OPTIONS', headers });
 
     const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(requestData) });
     if (!res.ok) {

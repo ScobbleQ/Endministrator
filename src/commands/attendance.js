@@ -58,7 +58,9 @@ export default {
 
     if (!signin || signin.status !== 0) {
       await interaction.reply({
-        components: [textContainer(`Failed to claim sign-in:\n${signin?.msg ?? 'Unknown error'}`)],
+        components: [
+          textContainer(`## Failed to claim sign-in:\n\`${signin?.msg ?? 'Unknown error'}\``),
+        ],
         flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
       });
       return;

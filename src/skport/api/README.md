@@ -1,3 +1,10 @@
-tokenByEmailPassword
--> grant
--> basic
+tokenByEmailPassword (OPTIONS|204 -> POST|200)
+accountToken (OPTIONS|204 -> POST|201)
+basic?token= (OPTIONS|204 -> GET|200)
+grant (OPTIONS|204 -> POST|200)
+generateCredByCode (OPTIONS|200 -> POST|200)
+check (OPTIONS|204 -> GET|200)
+accountToken (GET|200)
+basic?token= (OPTIONS|204 -> GET|200)
+grant (OPTIONS|204 -> GET|200)
+check (OPTIONS|200 -> GET|200)

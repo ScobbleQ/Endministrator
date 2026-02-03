@@ -36,9 +36,9 @@ export default {
       false
     );
 
-    // Refresh token every 48 hours
+    // Refresh token at midnight EST
     new CronJob(
-      '0 0 */48 * * *',
+      '0 0 * * *',
       () => refreshLoginToken(),
       null,
       true,

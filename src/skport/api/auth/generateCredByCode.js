@@ -39,11 +39,6 @@ export async function generateCredByCode({ code }) {
     vName: '1.0.0',
   };
 
-  const requestData = {
-    kind: 1,
-    code: code,
-  };
-
   try {
     const res = await fetch(url, {
       method: 'POST',

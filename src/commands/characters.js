@@ -245,7 +245,7 @@ export default {
     const characters = await getCharacters(interaction.user.id);
 
     if (!characters || characters.status !== 0) {
-      await interaction.respond([{ name: characters?.msg ?? 'Error', value: '-999' }]);
+      await interaction.respond([{ name: characters?.msg || 'Error', value: '-999' }]);
       return;
     }
 
