@@ -50,24 +50,22 @@ export async function checkAttendance(client) {
           throw new Error(attendanceRes?.msg ?? 'Attendance claim failed');
         }
 
-        if (BotConfig.environment === 'production') {
-          await createEvent(u.dcid, {
-            interaction: 'cron',
-            metadata: {
-              type: 'attendance',
-              reward: {
-                name: attendanceRes.data[0].name,
-                count: attendanceRes.data[0].count,
-                icon: attendanceRes.data[0].icon,
-              },
-              bonus: attendanceRes.data.slice(1).map((r) => ({
-                name: r.name,
-                count: r.count,
-                icon: r.icon,
-              })),
+        await createEvent(u.dcid, {
+          interaction: 'cron',
+          metadata: {
+            type: 'attendance',
+            reward: {
+              name: attendanceRes.data[0].name,
+              count: attendanceRes.data[0].count,
+              icon: attendanceRes.data[0].icon,
             },
-          });
-        }
+            bonus: attendanceRes.data.slice(1).map((r) => ({
+              name: r.name,
+              count: r.count,
+              icon: r.icon,
+            })),
+          },
+        });
 
         if (skport.enableNotif) {
           const container = new ContainerBuilder().addTextDisplayComponents((textDisplay) =>
