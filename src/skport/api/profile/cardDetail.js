@@ -1,3 +1,5 @@
+import { computeSign } from '../../utils/computeSign.js';
+
 /**
  * @typedef {Object} CardDetail
  * @property {Base} base
@@ -64,7 +66,7 @@
 
 /**
  *
- * @param {{ serverId: string, roleId: string, userId: string, cred: string, signToken: string }} param0
+ * @param {{ serverId: string, roleId: string, userId: string, cred: string, token: string }} param0
  * @returns {Promise<{ status: -1, msg: string } | { status: 0, data: CardDetail }>}
  * @example
  * // Login with email and password
@@ -74,35 +76,21 @@
  * // Exchange the OAuth token for credentials
  * const cred = await generateCredByCode({ code: oauth.data.code });
  *
- * // Sign the token for the binding API
- * const bindingSignature = computeSign({
- *   token: cred.data.token,
- *   path: '/api/v1/game/player/binding',
- *   body: '{}'
- * });
- *
  * // Get the endfield binding
- * const binding = await getBinding({ cred: cred.data.cred, sign: bindingSignature });
+ * const binding = await getBinding({ cred: cred.data.cred, token: cred.data.token });
  * const endfield = binding.data.find((b) => b.appCode === 'endfield');
  * const roleInfo = endfield.bindingList[0].defaultRole;
- *
- * // Sign the token for the card detail API
- * const cardSignature = computeSign({
- *   token: cred.data.token,
- *   path: '/api/v1/game/endfield/card/detail',
- *   body: '{}'
- * });
  *
  * const card = await cardDetail({
  *   serverId: roleInfo.serverId,
  *   roleId: roleInfo.roleId,
  *   userId: cred.data.userId,
  *   cred: cred.data.cred,
- *   signToken: cardSignature,
+ *   token: cred.data.token,
  * });
  * console.dir(card, { depth: null });
  */
-export async function cardDetail({ serverId, roleId, userId, cred, signToken }) {
+export async function cardDetail({ serverId, roleId, userId, cred, token }) {
   const url = 'https://zonai.skport.com/api/v1/game/endfield/card/detail';
 
   const params = {
@@ -147,20 +135,32 @@ export async function cardDetail({ serverId, roleId, userId, cred, signToken }) 
       'Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 SKPort/1.0.0(100000018)',
     cred: cred,
     platform: '3',
-    sign: signToken,
     'sk-language': 'en',
-    timestamp: Math.floor(Date.now() / 1000).toString(),
     vName: '1.0.0',
   };
 
   try {
     await fetch(newUrl, { method: 'OPTIONS', headers: optionHeader });
 
+    const ts = Math.floor(Date.now() / 1000).toString();
+    const sign = computeSign({
+      token: token,
+      path: '/api/v1/game/endfield/card/detail',
+      body: '',
+      timestamp: ts,
+    });
+
     const res = await fetch(newUrl, {
       method: 'GET',
-      headers: getHeader,
+      headers: {
+        ...getHeader,
+        sign: sign,
+        timestamp: ts,
+      },
     });
-    console.log(newUrl, getHeader);
+
+    if (res.status === 401) {
+    }
 
     if (!res.ok) {
       const msg = await res.text();

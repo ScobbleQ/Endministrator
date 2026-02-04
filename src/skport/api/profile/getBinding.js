@@ -1,4 +1,5 @@
 import UserAgent from 'user-agents';
+import { computeSign } from '../../utils/computeSign.js';
 
 /**
  * @typedef {Object} PlayerBinding
@@ -24,7 +25,7 @@ import UserAgent from 'user-agents';
 
 /**
  * Get the binding list from the API
- * @param {{ cred: string, sign: string }} param0
+ * @param {{ cred: string, token: string }} param0
  * @returns {Promise<{ status: -1, msg: string } | { status: 0, data: PlayerBinding[] }>}
  * @example
  * // Login with email and password
@@ -33,16 +34,11 @@ import UserAgent from 'user-agents';
  *
  * // Exchange the OAuth token for credentials
  * const cred = await generateCredByCode({ code: oauth.data.code });
- * const sign = computeSign({
- *   token: cred.data.token,
- *   path: '/api/v1/game/player/binding',
- *   body: '{}'
- * });
  *
- * const binding = await getBinding({ cred: cred.data.cred, sign: sign });
+ * const binding = await getBinding({ cred: cred.data.cred, token: cred.data.token });
  * console.dir(binding, { depth: null });
  */
-export async function getBinding({ cred, sign }) {
+export async function getBinding({ cred, token }) {
   const url = 'https://zonai.skport.com/api/v1/game/player/binding?';
 
   const headers = {
@@ -59,17 +55,28 @@ export async function getBinding({ cred, sign }) {
     'Sec-Fetch-Dest': 'empty',
     'Sec-Fetch-Mode': 'cors',
     'Sec-Fetch-Site': 'same-site',
-    sign: sign,
     'sk-language': 'en',
-    timestamp: Math.floor(Date.now() / 1000).toString(),
     'User-Agent': new UserAgent({ deviceCategory: 'desktop' }).toString(),
     vName: '1.0.0',
   };
 
   try {
+    const ts = Math.floor(Date.now() / 1000).toString();
+
+    const sign = computeSign({
+      token: token,
+      path: '/api/v1/game/player/binding',
+      body: '',
+      timestamp: ts,
+    });
+
     const res = await fetch(url, {
       method: 'GET',
-      headers: headers,
+      headers: {
+        ...headers,
+        sign: sign,
+        timestamp: ts,
+      },
     });
 
     if (!res.ok) {

@@ -4,7 +4,7 @@ import crypto from 'crypto';
  * Compute the signature for zonai.skport.com API requests.
  *
  * Formula: sign = MD5(HMAC-SHA256(path + body + timestamp + headers_json, signToken))
- * @param {{ token: string, path: string, body: string }} param0
+ * @param {{ token: string, path: string, body: string, timestamp: string }} param0
  * @returns {string}
  * @example
  * // Login with email and password
@@ -21,17 +21,15 @@ import crypto from 'crypto';
  *   body: '{}'
  * });
  */
-export function computeSign({ token, path, body = '' }) {
-  const ts = Math.floor(Date.now() / 1000).toString();
-
+export function computeSign({ token, path, body = '', timestamp }) {
   const headers = JSON.stringify({
     platform: '3',
-    timestamp: ts,
+    timestamp: timestamp,
     dId: '', // Device ID, can be left empty
     vName: '1.0.0',
   });
 
-  const signString = `${path}${body}${ts}${headers}`;
+  const signString = `${path}${body}${timestamp}${headers}`;
 
   const hmacResult = crypto.createHmac('sha256', token).update(signString).digest('hex');
 

@@ -2,8 +2,13 @@ import { ContainerBuilder, MessageFlags, SlashCommandBuilder, codeBlock } from '
 import { BotConfig } from '../../config.js';
 import { createEvent, getAccount, getUser } from '../db/queries.js';
 import { attendance, generateCredByCode, grantOAuth } from '../skport/api/index.js';
-import { computeSign } from '../skport/utils/computeSign.js';
-import { MessageTone, noUserContainer, textContainer } from '../utils/containers.js';
+import {
+  MessageTone,
+  credErrorContainer,
+  noUserContainer,
+  oauthErrorContainer,
+  textContainer,
+} from '../utils/containers.js';
 
 export default {
   data: new SlashCommandBuilder()
@@ -22,6 +27,8 @@ export default {
       return;
     }
 
+    await interaction.deferReply();
+
     if (BotConfig.environment === 'production') {
       await createEvent(interaction.user.id, {
         interaction: 'discord',
@@ -34,45 +41,47 @@ export default {
 
     const skport = await getAccount(user.dcid);
     if (!skport) {
-      await interaction.reply({
+      await interaction.editReply({
         components: [textContainer('Please add a SKPort account with /add account first')],
-        flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
+        flags: [MessageFlags.IsComponentsV2],
       });
       return;
     }
 
     const oauth = await grantOAuth({ token: skport.accountToken, type: 0 });
     if (!oauth || oauth.status !== 0) {
+      await interaction.editReply({
+        components: [oauthErrorContainer()],
+        flags: [MessageFlags.IsComponentsV2],
+      });
       return;
     }
 
     // @ts-ignore: code is guaranteed since we are using type 0
     const cred = await generateCredByCode({ code: oauth.data.code });
     if (!cred || cred.status !== 0) {
+      await interaction.editReply({
+        components: [credErrorContainer()],
+        flags: [MessageFlags.IsComponentsV2],
+      });
       return;
     }
 
-    const sign = computeSign({
-      token: cred.data.token,
-      path: '/web/v1/game/endfield/attendance',
-      body: '',
-    });
-
     const signin = await attendance({
       cred: cred.data.cred,
-      sign: sign,
+      token: cred.data.token,
       uid: skport.roleId,
       serverId: skport.serverId,
     });
 
     if (!signin || signin.status !== 0) {
-      await interaction.reply({
+      await interaction.editReply({
         components: [
           textContainer(
-            `## Failed to claim sign-in\n${codeBlock('json', signin?.msg || 'Unknown error')}`
+            `## Failed to sign in\n${codeBlock('json', signin?.msg || 'Unknown error')}`
           ),
         ],
-        flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
+        flags: [MessageFlags.IsComponentsV2],
       });
       return;
     }
@@ -91,7 +100,7 @@ export default {
       );
     }
 
-    await interaction.reply({
+    await interaction.editReply({
       components: [attendanceContainer],
       flags: [MessageFlags.IsComponentsV2],
     });

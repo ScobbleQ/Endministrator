@@ -15,7 +15,6 @@ import { grantOAuth } from '../skport/api/auth/index.js';
 import { generateCredByCode } from '../skport/api/auth/index.js';
 import { tokenByEmailPassword } from '../skport/api/index.js';
 import { getBinding } from '../skport/api/profile/index.js';
-import { computeSign } from '../skport/utils/computeSign.js';
 import { textContainer } from '../utils/containers.js';
 import { parseCookieToken } from '../utils/parseCookieToken.js';
 
@@ -288,14 +287,7 @@ export default {
       return;
     }
 
-    // Sign the token for the binding API
-    const signature = computeSign({
-      token: cred.data.token,
-      path: '/api/v1/game/player/binding',
-      body: '',
-    });
-
-    const binding = await getBinding({ cred: cred.data.cred, sign: signature });
+    const binding = await getBinding({ cred: cred.data.cred, token: cred.data.token });
     if (!binding || binding.status !== 0) {
       const bindingErrorContainer = new ContainerBuilder().addTextDisplayComponents((textDisplay) =>
         textDisplay.setContent(binding.msg || 'Failed to get binding')

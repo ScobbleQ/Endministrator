@@ -1,9 +1,7 @@
 import { ContainerBuilder, MessageFlags } from 'discord.js';
 import pLimit from 'p-limit';
-import { BotConfig } from '../../config.js';
 import { createEvent, getAccount, getAllUsersWithAttendance } from '../db/queries.js';
 import { attendance, generateCredByCode, grantOAuth } from '../skport/api/index.js';
-import { computeSign } from '../skport/utils/computeSign.js';
 
 /**
  *
@@ -33,15 +31,9 @@ export async function checkAttendance(client) {
           throw new Error(cred?.msg ?? 'Credential generation failed');
         }
 
-        const sign = computeSign({
-          token: cred.data.token,
-          path: '/web/v1/game/endfield/attendance',
-          body: '',
-        });
-
         const attendanceRes = await attendance({
           cred: cred.data.cred,
-          sign: sign,
+          token: cred.data.token,
           uid: skport.roleId,
           serverId: skport.serverId,
         });

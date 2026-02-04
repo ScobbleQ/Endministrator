@@ -30,6 +30,24 @@ export function alreadyLoggedInContainer({ tone = MessageTone.Formal }) {
   );
 }
 
+export function oauthErrorContainer() {
+  return new ContainerBuilder().addTextDisplayComponents((textDisplay) =>
+    textDisplay.setContent('Failed to grant OAuth token')
+  );
+}
+
+export function credErrorContainer() {
+  return new ContainerBuilder().addTextDisplayComponents((textDisplay) =>
+    textDisplay.setContent('Failed to generate credentials')
+  );
+}
+
+export function bindingErrorContainer() {
+  return new ContainerBuilder().addTextDisplayComponents((textDisplay) =>
+    textDisplay.setContent('Failed to get binding')
+  );
+}
+
 /**
  * @param {string} text
  * @returns {ContainerBuilder}

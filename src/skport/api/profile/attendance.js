@@ -1,4 +1,5 @@
 import UserAgent from 'user-agents';
+import { computeSign } from '../../utils/computeSign.js';
 
 /**
  * @typedef {Object} AttendanceResponse
@@ -23,7 +24,7 @@ import UserAgent from 'user-agents';
 
 /**
  * Submit attendance to the API
- * @param {{cred: string, sign: string, uid: string, serverId: string}} param0
+ * @param {{cred: string, token: string, uid: string, serverId: string}} param0
  * @returns {Promise<{ status: -1, msg: string } | { status: 0, data: ResourceItem[] }>}
  * @example
  * // Login with email and password
@@ -32,11 +33,9 @@ import UserAgent from 'user-agents';
  *
  * // Exchange the OAuth token for credentials
  * const cred = await generateCredByCode({ code: oauth.data.code });
- * const sign = computeSign({
- *   token: cred.data.token,
- *   path: '/web/v1/game/endfield/attendance',
- *   body: '{}'
- * });
+ *
+ * // Get the endfield binding
+ * const binding = await getBinding({ cred: cred.data.cred, token: cred.data.token });
  *
  * // Get the endfield binding
  * const endfieldBinding = binding.data.find((binding) => binding.appCode === 'endfield');
@@ -44,13 +43,13 @@ import UserAgent from 'user-agents';
  *
  * const attendance = await attendance({
  *   cred: cred.data.cred,
- *   sign: sign,
+ *   token: cred.data.token,
  *   uid: endfield.defaultRole.roleId,
  *   serverId: endfield.defaultRole.serverId,
  * });
  * console.dir(attendance, { depth: null });
  */
-export async function attendance({ cred, sign, uid, serverId }) {
+export async function attendance({ cred, token, uid, serverId }) {
   const url = 'https://zonai.skport.com/web/v1/game/endfield/attendance';
 
   const headers = {
@@ -65,18 +64,29 @@ export async function attendance({ cred, sign, uid, serverId }) {
     Pragma: 'no-cache',
     Priority: 'u=3, i',
     Referer: 'https://game.skport.com/',
-    sign: sign,
     'sk-game-role': `3_${uid}_${serverId}`,
     'sk-language': 'en',
-    timestamp: Math.floor(Date.now() / 1000).toString(),
     'User-Agent': new UserAgent({ deviceCategory: 'desktop' }).toString(),
     vName: '1.0.0',
   };
 
   try {
+    const ts = Math.floor(Date.now() / 1000).toString();
+
+    const sign = computeSign({
+      token: token,
+      path: '/web/v1/game/endfield/attendance',
+      body: '',
+      timestamp: ts,
+    });
+
     const res = await fetch(url, {
       method: 'POST',
-      headers: headers,
+      headers: {
+        ...headers,
+        sign: sign,
+        timestamp: ts,
+      },
     });
 
     if (!res.ok) {
