@@ -17,16 +17,16 @@ export async function tokenByEmailPassword(email, password) {
   };
 
   const headers = {
-    Host: 'as.gryphline.com',
-    'X-Captcha-Version': '4.0',
-    'X-Language': 'en-us',
+    Accept: '*/*',
     'Accept-Encoding': 'gzip, deflate, br',
-    Accept: '*\/*',
-    'Content-Type': 'application\/json',
     'Accept-Language': 'en-US,en;q=0.9',
     Connection: 'keep-alive',
     'Content-Length': JSON.stringify(body).length.toString(),
-    'User-Agent': 'skport-ios\/701014 CFNetwork\/3860.300.31 Darwin\/25.2.0',
+    'Content-Type': 'application/json',
+    Host: 'as.gryphline.com',
+    'User-Agent': 'skport-ios/100000018 CFNetwork/3860.300.31 Darwin/25.2.0',
+    'X-Captcha-Version': '4.0',
+    'X-Language': 'en-us',
   };
 
   try {

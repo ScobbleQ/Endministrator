@@ -16,7 +16,7 @@ import { generateCredByCode } from '../skport/api/auth/index.js';
 import { tokenByEmailPassword } from '../skport/api/index.js';
 import { getBinding } from '../skport/api/profile/index.js';
 import { computeSign } from '../skport/utils/computeSign.js';
-import { MessageTone, alreadyLoggedInContainer, textContainer } from '../utils/containers.js';
+import { textContainer } from '../utils/containers.js';
 import { parseCookieToken } from '../utils/parseCookieToken.js';
 
 export default {
@@ -44,7 +44,11 @@ export default {
     const user = await getUser(interaction.user.id);
     if (user) {
       await interaction.reply({
-        components: [alreadyLoggedInContainer({ tone: MessageTone.Formal })],
+        components: [
+          textContainer(
+            'Only one account can be linked per Discord account. Multiple accounts will be supported in the future.'
+          ),
+        ],
         flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
       });
       return;
@@ -356,7 +360,7 @@ export default {
       accountToken: loginData.token,
       hgId: loginData.hgId,
       userId: cred.data.userId,
-      channelId: endfield.bindingList[0].channelMasterId,
+      channelId: selectedBinding.channelMasterId,
       serverType: selectedBinding.defaultRole.serverType,
       serverId: selectedBinding.defaultRole.serverId,
       serverName: selectedBinding.defaultRole.serverName,
@@ -381,5 +385,32 @@ export default {
       components: [successContainer],
       flags: [MessageFlags.IsComponentsV2],
     });
+
+    if (interaction.inGuild()) {
+      try {
+        const message = await interaction.user.send({
+          components: [
+            textContainer(
+              [
+                '## ▼// Account Linked',
+                `Nickname: \`${selectedBinding.defaultRole.nickname}\``,
+                `UID: \`${selectedBinding.defaultRole.roleId}\``,
+                `Server: \`${selectedBinding.defaultRole.serverName}\``,
+              ].join('\n')
+            ),
+          ],
+          flags: [MessageFlags.IsComponentsV2],
+        });
+
+        await message.pin();
+      } catch (/** @type {any} */ error) {
+        await interaction.followUp({
+          components: [
+            textContainer(`Please ensure the bot has permissions to DM you.\n${error.message}`),
+          ],
+          flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
+        });
+      }
+    }
   },
 };

@@ -55,7 +55,7 @@ export default {
     const sign = computeSign({
       token: cred.data.token,
       path: '/web/v1/game/endfield/attendance',
-      body: '{}',
+      body: '',
     });
 
     const signin = await attendance({

@@ -26,6 +26,7 @@ export async function generateCredByCode({ code }) {
     'Accept-Encoding': 'gzip, deflate, br',
     'Accept-Language': 'en-US,en;q=0.9',
     'Cache-Control': 'no-cache',
+    Connection: 'keep-alive',
     'Content-Length': JSON.stringify(body).length.toString(),
     'Content-Type': 'application/json',
     Origin: 'https://www.skport.com',

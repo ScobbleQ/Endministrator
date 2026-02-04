@@ -128,7 +128,7 @@ export async function cardDetail({ serverId, roleId, userId, cred, signToken }) 
     'Sec-Fetch-Mode': 'cors',
     'Sec-Fetch-Site': 'same-site',
     'User-Agent':
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 SKPort/0.7.1(701014)',
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 SKPort/1.0.0(100000018)',
   };
 
   const getHeader = {
@@ -144,7 +144,7 @@ export async function cardDetail({ serverId, roleId, userId, cred, signToken }) 
     'Sec-Fetch-Mode': 'cors',
     'Sec-Fetch-Site': 'same-site',
     'User-Agent':
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 SKPort/0.7.1(701014)',
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 SKPort/1.0.0(100000018)',
     cred: cred,
     platform: '3',
     sign: signToken,
@@ -160,6 +160,7 @@ export async function cardDetail({ serverId, roleId, userId, cred, signToken }) 
       method: 'GET',
       headers: getHeader,
     });
+    console.log(newUrl, getHeader);
 
     if (!res.ok) {
       const msg = await res.text();

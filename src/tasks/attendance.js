@@ -36,7 +36,7 @@ export async function checkAttendance(client) {
         const sign = computeSign({
           token: cred.data.token,
           path: '/web/v1/game/endfield/attendance',
-          body: '{}',
+          body: '',
         });
 
         const attendanceRes = await attendance({
