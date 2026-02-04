@@ -106,44 +106,59 @@ export async function cardDetail({ serverId, roleId, userId, cred, signToken }) 
   const url = 'https://zonai.skport.com/api/v1/game/endfield/card/detail';
 
   const params = {
-    serverId: serverId,
     roleId: roleId,
+    serverId: serverId,
     userId: userId,
   };
 
   const newUrl = `${url}?${new URLSearchParams(params).toString()}`;
 
-  const headers = {
+  const optionHeader = {
+    Accept: '*/*',
     'Accept-Encoding': 'gzip, deflate, br',
-    platform: '3',
-    'Sec-Fetch-Dest': 'empty',
-    'Sec-Fetch-Site': 'same-site',
-    Host: 'zonai.skport.com',
-    'Content-Type': 'application\/json',
-    sign: signToken,
-    'User-Agent':
-      'Mozilla\/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit\/605.1.15 (KHTML, like Gecko) Mobile\/15E148 SKPort\/0.7.1(701014)',
-    cred: cred,
-    timestamp: Math.floor(Date.now() / 1000).toString(),
-    'Sec-Fetch-Mode': 'cors',
     'Accept-Language': 'en-US,en;q=0.9',
-    Referer: 'https:\/\/game.skport.com\/',
-    Accept: '*\/*',
+    'Access-Control-Request-Headers': 'content-type,cred,platform,sign,sk-language,timestamp,vname',
+    'Access-Control-Request-Method': 'GET',
     Connection: 'keep-alive',
+    'Content-Length': '0',
+    Host: 'zonai.skport.com',
+    Origin: 'https://game.skport.com',
+    Referer: 'https://game.skport.com/',
+    'Sec-Fetch-Dest': 'empty',
+    'Sec-Fetch-Mode': 'cors',
+    'Sec-Fetch-Site': 'same-site',
+    'User-Agent':
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 SKPort/0.7.1(701014)',
+  };
+
+  const getHeader = {
+    Accept: '*/*',
+    'Accept-Encoding': 'gzip, deflate, br',
+    'Accept-Language': 'en-US,en;q=0.9',
+    Connection: 'keep-alive',
+    'Content-Type': 'application/json',
+    Host: 'zonai.skport.com',
+    Origin: 'https://game.skport.com',
+    Referer: 'https://game.skport.com/',
+    'Sec-Fetch-Dest': 'empty',
+    'Sec-Fetch-Mode': 'cors',
+    'Sec-Fetch-Site': 'same-site',
+    'User-Agent':
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 SKPort/0.7.1(701014)',
+    cred: cred,
+    platform: '3',
+    sign: signToken,
     'sk-language': 'en',
+    timestamp: Math.floor(Date.now() / 1000).toString(),
     vName: '1.0.0',
-    Origin: 'https:\/\/game.skport.com',
   };
 
   try {
-    await fetch(newUrl, {
-      method: 'OPTIONS',
-      headers: headers,
-    });
+    await fetch(newUrl, { method: 'OPTIONS', headers: optionHeader });
 
     const res = await fetch(newUrl, {
       method: 'GET',
-      headers: headers,
+      headers: getHeader,
     });
 
     if (!res.ok) {

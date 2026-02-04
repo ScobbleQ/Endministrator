@@ -7,9 +7,9 @@ import {
   codeBlock,
 } from 'discord.js';
 import { BotConfig } from '../../config.js';
-import { createEvent, getUser } from '../db/queries.js';
+import { createEvent, getAccount, getUser } from '../db/queries.js';
 import { getCachedCardDetail } from '../skport/utils/getCachedCardDetail.js';
-import { MessageTone, noUserContainer } from '../utils/containers.js';
+import { MessageTone, noUserContainer, textContainer } from '../utils/containers.js';
 import { ProfessionEmojis, ProfileEmojis, PropertyEmojis, RarityEmoji } from '../utils/emojis.js';
 import { privacy } from '../utils/privacy.js';
 
@@ -25,6 +25,15 @@ export default {
     if (!user) {
       await interaction.reply({
         components: [noUserContainer({ tone: MessageTone.Formal })],
+        flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
+      });
+      return;
+    }
+
+    const account = await getAccount(interaction.user.id);
+    if (!account) {
+      await interaction.reply({
+        components: [textContainer('Please link a SKPort account with /link account first')],
         flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
       });
       return;
@@ -53,7 +62,7 @@ export default {
     if (!profile || profile.status !== 0) {
       const errorContainer = new ContainerBuilder().addTextDisplayComponents((textDisplay) =>
         textDisplay.setContent(
-          `## [${profile.status}] Failed to get profile information\n${codeBlock('json', profile.msg)}`
+          `## Failed to get profile information\n${codeBlock('json', profile.msg)}`
         )
       );
       await interaction.editReply({
@@ -71,7 +80,7 @@ export default {
           [
             `## ▼// ${profile.data.base.name}`,
             `>> Awakening Day: <t:${profile.data.base.createTime}:D>`,
-            `>> UID: ${privacy(profile.data.base.roleId, user.isPrivate)}`,
+            `>> UID: ${privacy(profile.data.base.roleId, account.isPrivate)}`,
             `>> Server: ${profile.data.base.serverName}`,
           ].join('\n')
         )

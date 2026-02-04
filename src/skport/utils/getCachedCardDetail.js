@@ -1,4 +1,4 @@
-import { getUser } from '../../db/queries.js';
+import { getAccount, getUser } from '../../db/queries.js';
 import { generateCredByCode, grantOAuth } from '../api/auth/index.js';
 import { cardDetail } from '../api/profile/index.js';
 import { getOrCreateCache, getOrSet } from './cache.js';
@@ -19,7 +19,10 @@ export async function getCachedCardDetail(dcid) {
     const user = await getUser(dcid);
     if (!user) return { status: -1, msg: 'Please login with /login first' };
 
-    const oauth = await grantOAuth({ token: user.loginToken, type: 0 });
+    const skport = await getAccount(dcid);
+    if (!skport) return { status: -1, msg: 'Please add a SKPort account with /add account first' };
+
+    const oauth = await grantOAuth({ token: skport.accountToken, type: 0 });
     if (!oauth || oauth.status !== 0) return { status: -1, msg: 'Failed to grant OAuth token' };
 
     // @ts-ignore - code is guaranteed when using type 0
@@ -33,9 +36,9 @@ export async function getCachedCardDetail(dcid) {
     });
 
     const card = await cardDetail({
-      serverId: user.serverId,
-      roleId: user.roleId,
-      userId: cred.data.userId,
+      serverId: skport.serverId,
+      roleId: skport.roleId,
+      userId: skport.userId,
       cred: cred.data.cred,
       signToken,
     });

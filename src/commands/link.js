@@ -1,4 +1,5 @@
 import {
+  ButtonBuilder,
   ButtonStyle,
   ContainerBuilder,
   LabelBuilder,
@@ -9,15 +10,11 @@ import {
   TextInputBuilder,
   TextInputStyle,
 } from 'discord.js';
-import { ButtonBuilder } from '@discordjs/builders';
-import { BotConfig } from '../../config.js';
-import { createEvent, createUser, getUser } from '../db/queries.js';
-import {
-  generateCredByCode,
-  getBinding,
-  grantOAuth,
-  tokenByEmailPassword,
-} from '../skport/api/index.js';
+import { createAccount, getUser } from '../db/queries.js';
+import { grantOAuth } from '../skport/api/auth/index.js';
+import { generateCredByCode } from '../skport/api/auth/index.js';
+import { tokenByEmailPassword } from '../skport/api/index.js';
+import { getBinding } from '../skport/api/profile/index.js';
 import { computeSign } from '../skport/utils/computeSign.js';
 import { MessageTone, alreadyLoggedInContainer, textContainer } from '../utils/containers.js';
 import { parseCookieToken } from '../utils/parseCookieToken.js';
@@ -25,23 +22,27 @@ import { parseCookieToken } from '../utils/parseCookieToken.js';
 export default {
   data: new SlashCommandBuilder()
     .setName('link')
-    .setDescription('Link your SKPort account')
+    .setDescription('Link your SKPort account to your Discord account')
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName('account')
+        .setDescription('Link your SKPort account to your Discord account')
+    )
     .setIntegrationTypes([0, 1])
     .setContexts([0, 1, 2]),
   /** @param {import("discord.js").ChatInputCommandInteraction} interaction */
   async execute(interaction) {
+    const subcommand = interaction.options.getSubcommand();
+    if (subcommand !== 'account') {
+      await interaction.reply({
+        components: [textContainer('Invalid subcommand')],
+        flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
+      });
+      return;
+    }
+
     const user = await getUser(interaction.user.id);
     if (user) {
-      if (BotConfig.environment === 'production') {
-        await createEvent(interaction.user.id, {
-          interaction: 'discord',
-          metadata: {
-            type: 'slash',
-            command: 'link',
-          },
-        });
-      }
-
       await interaction.reply({
         components: [alreadyLoggedInContainer({ tone: MessageTone.Formal })],
         flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
@@ -178,11 +179,12 @@ export default {
   /** @param {import("discord.js").ModalSubmitInteraction} interaction */
   async modal(interaction) {
     await interaction.deferUpdate();
+    const customId = interaction.customId.split('-')[1];
 
     /** @type {{ token: string, hgId: string } | null} */
     let loginData = null;
 
-    if (interaction.customId === 'link-login') {
+    if (customId === 'login') {
       const email = interaction.fields.getTextInputValue('email');
       const password = interaction.fields.getTextInputValue('password');
 
@@ -208,7 +210,7 @@ export default {
       }
 
       loginData = { token: login.data.token, hgId: login.data.hgId };
-    } else if (interaction.customId === 'link-token') {
+    } else if (customId === 'token') {
       const cookieToken = interaction.fields.getTextInputValue('token');
       const initContainer = new ContainerBuilder().addTextDisplayComponents((textDisplay) =>
         textDisplay.setContent('Attempting to parse cookie token...')
@@ -313,15 +315,10 @@ export default {
       return;
     }
 
-    // Get default role from the binding, fallback to first role
     const selectedBinding =
       endfield.bindingList.find((b) => b.isDefault) ?? endfield.bindingList[0];
-    const roleInfo =
-      selectedBinding.defaultRole ??
-      selectedBinding.roles?.find((r) => r.isDefault) ??
-      selectedBinding.roles?.[0];
 
-    if (!roleInfo) {
+    if (!selectedBinding || !selectedBinding.defaultRole) {
       const noRoleContainer = new ContainerBuilder().addTextDisplayComponents((textDisplay) =>
         textDisplay.setContent('No game role found for this binding.')
       );
@@ -342,7 +339,7 @@ export default {
     });
 
     // Somehow they got banned...
-    if (roleInfo.isBanned) {
+    if (selectedBinding.defaultRole.isBanned) {
       const bannedContainer = new ContainerBuilder().addTextDisplayComponents((textDisplay) =>
         textDisplay.setContent('The account is banned.')
       );
@@ -353,35 +350,28 @@ export default {
       return;
     }
 
-    // store data in the database
-    await createUser(interaction.user.id, {
-      email: '',
+    // Add the account to the database
+    await createAccount(interaction.user.id, {
+      nickname: selectedBinding.defaultRole.nickname,
+      accountToken: loginData.token,
       hgId: loginData.hgId,
-      loginToken: loginData.token,
-
-      // @ts-ignore: uid is guaranteed since we are using type 0
-      oathUid: oauth.data.uid,
-      // @ts-ignore: code is guaranteed since we are using type 0
-      oauthCode: oauth.data.code,
-
-      cred: cred.data.cred,
       userId: cred.data.userId,
-      cToken: cred.data.token,
-
-      serverId: roleInfo.serverId,
-      serverName: roleInfo.serverName,
-      roleId: roleInfo.roleId,
+      channelId: endfield.bindingList[0].channelMasterId,
+      serverType: selectedBinding.defaultRole.serverType,
+      serverId: selectedBinding.defaultRole.serverId,
+      serverName: selectedBinding.defaultRole.serverName,
+      roleId: selectedBinding.defaultRole.roleId,
     });
 
     const successContainer = new ContainerBuilder().addTextDisplayComponents((textDisplay) =>
       textDisplay.setContent(
         [
           '## Login completed successfully!',
-          'The following account has been linked to your Discord account:\n',
-          `Nickname: \`${roleInfo.nickname}\``,
-          `UID: \`${roleInfo.roleId}\``,
-          `Authority Level: \`${roleInfo.level}\``,
-          `Server: \`${roleInfo.serverName}\``,
+          'The following account has been added to your Discord account:\n',
+          `Nickname: \`${selectedBinding.defaultRole.nickname}\``,
+          `UID: \`${selectedBinding.defaultRole.roleId}\``,
+          `Authority Level: \`${selectedBinding.defaultRole.level}\``,
+          `Server: \`${selectedBinding.defaultRole.serverName}\``,
           '\nDiscord Server: https://discord.gg/5rUsSZTyf2',
         ].join('\n')
       )
@@ -391,26 +381,5 @@ export default {
       components: [successContainer],
       flags: [MessageFlags.IsComponentsV2],
     });
-
-    // Do a test DM to the user if interaction initiated in a guild
-    if (interaction.inGuild()) {
-      try {
-        const dmContainer = textContainer(
-          'This is a test to ensure we have proper permissions to send DMs. You are all set and no action is required.'
-        );
-        await interaction.user.send({
-          components: [dmContainer],
-          flags: [MessageFlags.IsComponentsV2],
-        });
-      } catch (error) {
-        const dmErrorContainer = textContainer(
-          'An error occurred when we tried to send a DM to you. Please check your DM settings and make sure you have enabled DMs.'
-        );
-        await interaction.followUp({
-          components: [dmErrorContainer],
-          flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
-        });
-      }
-    }
   },
 };

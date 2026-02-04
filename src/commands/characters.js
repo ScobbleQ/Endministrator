@@ -265,7 +265,7 @@ export default {
     const characters = await getCharacters(interaction.user.id);
     if (!characters || characters.status !== 0) {
       await interaction.editReply({
-        components: [textContainer(characters?.msg ?? 'Failed to load characters')],
+        components: [textContainer(characters?.msg || 'Failed to load characters')],
       });
       return;
     }
@@ -296,7 +296,7 @@ export default {
     const characters = await getCharacters(interaction.user.id);
     if (!characters || characters.status !== 0) {
       await interaction.editReply({
-        components: [textContainer(characters?.msg ?? 'Failed to load characters')],
+        components: [textContainer(characters?.msg || 'Failed to load characters')],
       });
       return;
     }
@@ -329,7 +329,7 @@ export default {
     const characters = await getCharacters(interaction.user.id);
     if (!characters || characters.status !== 0) {
       await interaction.editReply({
-        components: [textContainer(characters?.msg ?? 'Failed to load characters')],
+        components: [textContainer(characters?.msg || 'Failed to load characters')],
       });
       return;
     }

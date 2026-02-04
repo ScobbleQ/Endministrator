@@ -1,7 +1,7 @@
 import { ContainerBuilder, MessageFlags } from 'discord.js';
 import pLimit from 'p-limit';
 import { BotConfig } from '../../config.js';
-import { createEvent, getAllUsersWithAttendance, getSkportUser } from '../db/queries.js';
+import { createEvent, getAccount, getAllUsersWithAttendance } from '../db/queries.js';
 import { attendance, generateCredByCode, grantOAuth } from '../skport/api/index.js';
 import { computeSign } from '../skport/utils/computeSign.js';
 
@@ -20,14 +20,11 @@ export async function checkAttendance(client) {
 
   const task = users.map((u) =>
     limit(async () => {
-      // Ensure attendance is enabled
-      if (!u.enableAttendance) return;
-
       try {
-        const skport = await getSkportUser(u.dcid);
+        const skport = await getAccount(u.dcid);
         if (!skport) throw new Error("User's SKPort data not found");
 
-        const oauth = await grantOAuth({ token: skport.loginToken, type: 0 });
+        const oauth = await grantOAuth({ token: skport.accountToken, type: 0 });
         if (!oauth || oauth.status !== 0) throw new Error(oauth?.msg ?? 'OAuth failed');
 
         // @ts-ignore: code is guaranteed since we are using type 0
@@ -72,7 +69,7 @@ export async function checkAttendance(client) {
           });
         }
 
-        if (u.notifyAttendance) {
+        if (skport.enableNotif) {
           const container = new ContainerBuilder().addTextDisplayComponents((textDisplay) =>
             textDisplay.setContent(
               `# ▼// Daily Sign-in Summary\n-# <t:${Math.floor(Date.now() / 1000)}:F>`
@@ -106,5 +103,7 @@ export async function checkAttendance(client) {
     })
   );
 
-  await Promise.allSettled(task);
+  await Promise.allSettled(task).then(() => {
+    console.info('[Cron:Attendance] Attendance checked');
+  });
 }

@@ -1,5 +1,5 @@
 import pLimit from 'p-limit';
-import { getAllUsers, getSkportUser, getUser, updateSkportUser } from '../db/queries.js';
+import { getAccount, getAllUsers, getUser, updateAccount } from '../db/queries.js';
 import { accountToken, generateCredByCode, grantOAuth } from '../skport/api/index.js';
 
 /**
@@ -20,20 +20,20 @@ export async function refreshLoginToken() {
         const user = await getUser(u.dcid);
         if (!user) return;
 
-        const skport = await getSkportUser(u.dcid);
+        const skport = await getAccount(u.dcid);
         if (!skport) return;
 
-        const oauth = await grantOAuth({ token: skport.loginToken, type: 0 });
+        const oauth = await grantOAuth({ token: skport.accountToken, type: 0 });
         if (!oauth || oauth.status !== 0) return;
 
         // @ts-ignore: code is guaranteed since we are using type 0
         const cred = await generateCredByCode({ code: oauth.data.code });
         if (!cred || cred.status !== 0) return;
 
-        const token = await accountToken(skport.loginToken, cred.data.token, skport.hgId);
+        const token = await accountToken(skport.accountToken, cred.data.token, skport.hgId);
         if (token.status !== 0) return;
 
-        await updateSkportUser(u.dcid, { key: 'loginToken', value: token.data });
+        await updateAccount(u.dcid, skport.id, { key: 'accountToken', value: token.data });
       } catch (error) {
         console.error(
           `[Cron:RefreshLoginToken] Error refreshing login token for user ${u.dcid}:`,
@@ -43,5 +43,7 @@ export async function refreshLoginToken() {
     })
   );
 
-  await Promise.allSettled(task);
+  await Promise.allSettled(task).then(() => {
+    console.info('[Cron:RefreshLoginToken] Login tokens refreshed');
+  });
 }

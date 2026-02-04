@@ -1,6 +1,6 @@
-import { ContainerBuilder, MessageFlags, SlashCommandBuilder } from 'discord.js';
+import { ContainerBuilder, MessageFlags, SlashCommandBuilder, codeBlock } from 'discord.js';
 import { BotConfig } from '../../config.js';
-import { createEvent, getUser } from '../db/queries.js';
+import { createEvent, getAccount, getUser } from '../db/queries.js';
 import { attendance, generateCredByCode, grantOAuth } from '../skport/api/index.js';
 import { computeSign } from '../skport/utils/computeSign.js';
 import { MessageTone, noUserContainer, textContainer } from '../utils/containers.js';
@@ -32,7 +32,16 @@ export default {
       });
     }
 
-    const oauth = await grantOAuth({ token: user.loginToken, type: 0 });
+    const skport = await getAccount(user.dcid);
+    if (!skport) {
+      await interaction.reply({
+        components: [textContainer('Please add a SKPort account with /add account first')],
+        flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
+      });
+      return;
+    }
+
+    const oauth = await grantOAuth({ token: skport.accountToken, type: 0 });
     if (!oauth || oauth.status !== 0) {
       return;
     }
@@ -52,14 +61,16 @@ export default {
     const signin = await attendance({
       cred: cred.data.cred,
       sign: sign,
-      uid: user.roleId,
-      serverId: user.serverId,
+      uid: skport.roleId,
+      serverId: skport.serverId,
     });
 
     if (!signin || signin.status !== 0) {
       await interaction.reply({
         components: [
-          textContainer(`## Failed to claim sign-in:\n\`${signin?.msg ?? 'Unknown error'}\``),
+          textContainer(
+            `## Failed to claim sign-in\n${codeBlock('json', signin?.msg || 'Unknown error')}`
+          ),
         ],
         flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
       });

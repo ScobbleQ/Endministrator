@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm';
 import {
   bigint,
   boolean,
@@ -6,45 +7,44 @@ import {
   pgTable,
   text,
   timestamp,
-  unique,
+  uuid,
 } from 'drizzle-orm/pg-core';
 
-export const users = pgTable('users', {
-  dcid: text().primaryKey().notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
-  isPrivate: boolean('is_private').default(false).notNull(),
-  notifyAttendance: boolean('notify_attendance').default(true).notNull(),
-  enableAttendance: boolean('enable_attendance').default(true).notNull(),
-  isBanned: boolean('is_banned').default(false).notNull(),
-});
-
-export const skport = pgTable(
-  'skport',
+export const accounts = pgTable(
+  'accounts',
   {
-    dcid: text().primaryKey().notNull(),
-    userId: text('user_id').notNull(),
-    cred: text().notNull(),
-    cToken: text('c_token').notNull(),
-    serverId: text('server_id').notNull(),
-    roleId: text('role_id').notNull(),
-    loginToken: text('login_token').notNull(),
+    id: uuid().defaultRandom().primaryKey().notNull(),
+    dcid: text().notNull(),
+    addedOn: timestamp('added_on', { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+    nickname: text().notNull(),
+    accountToken: text('account_token').notNull(),
     hgId: text('hg_id').notNull(),
-    oauthCode: text('oauth_code').notNull(),
-    email: text().notNull(),
-    oathUid: text('oath_uid').notNull(),
+    userId: text('user_id').notNull(),
+    roleId: text('role_id').notNull(),
+    channelId: text('channel_id').notNull(),
+    serverType: text('server_type').notNull(),
+    serverId: text('server_id').notNull(),
     serverName: text('server_name').notNull(),
+    isPrivate: boolean('is_private').default(false).notNull(),
+    enableNotif: boolean('enable_notif').default(true).notNull(),
+    enableSignin: boolean('enable_signin').default(true).notNull(),
   },
   (table) => [
     foreignKey({
       columns: [table.dcid],
       foreignColumns: [users.dcid],
-      name: 'cred_dcid_fkey',
+      name: 'accounts_dcid_fkey',
     })
       .onUpdate('cascade')
       .onDelete('cascade'),
-    unique('cred_dcid_key').on(table.dcid),
   ]
 );
+
+export const users = pgTable('users', {
+  dcid: text().primaryKey().notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+  isBanned: boolean('is_banned').default(false).notNull(),
+});
 
 export const events = pgTable(
   'events',

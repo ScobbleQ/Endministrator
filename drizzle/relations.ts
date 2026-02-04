@@ -1,15 +1,15 @@
 import { relations } from 'drizzle-orm/relations';
-import { events, skport, users } from './schema';
+import { accounts, events, users } from './schema';
 
-export const skportRelations = relations(skport, ({ one }) => ({
+export const accountsRelations = relations(accounts, ({ one }) => ({
   user: one(users, {
-    fields: [skport.dcid],
+    fields: [accounts.dcid],
     references: [users.dcid],
   }),
 }));
 
 export const usersRelations = relations(users, ({ many }) => ({
-  skports: many(skport),
+  accounts: many(accounts),
   events: many(events),
 }));
 
