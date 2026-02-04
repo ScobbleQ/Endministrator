@@ -13,7 +13,7 @@ A Discord bot for **Arknights: Endfield** with utility commands to enhance your 
 
 ## Features
 
-- Automatic Sign-in: Daily attendance is checked automatically—no need to remember
+- Automatic Sign-in: Daily attendance is checked automatically
 - Profile view: View your in-game profile with real-time data
 - Characters: Browse all Endfield characters with detailed info
 - Wiki: Quick access to operators, weapons, facilities, gear, missions, and more
@@ -32,7 +32,7 @@ A Discord bot for **Arknights: Endfield** with utility commands to enhance your 
 
 The bot is hosted with a centralized database and 24/7 uptime. Get instant updates and skip the setup.
 
-**[Invite Endministrator to your server](https://discord.com/oauth2/authorize?client_id=1463987008157389005)**
+**[Invite Endministrator](https://discord.com/oauth2/authorize?client_id=1463987008157389005)** or join our [Community Server](https://discord.gg/5rUsSZTyf2)
 
 ### Self-Hosted
 
@@ -99,18 +99,19 @@ The bot is hosted with a centralized database and 24/7 uptime. Get instant updat
 
 ## Commands
 
-| Command       | Description                                         |
-| ------------- | --------------------------------------------------- |
-| `/login`      | Link your SKPort account to Discord                 |
-| `/profile`    | View your in-game profile                           |
-| `/characters` | Browse all Endfield characters                      |
-| `/wiki`       | Search the Endfield wiki (operators, weapons, etc.) |
-| `/attendance` | Claim daily sign-in rewards manually                |
-| `/about`      | About the bot                                       |
+| Command         | Description                                         |
+| --------------- | --------------------------------------------------- |
+| `/about`        | About the bot                                       |
+| `/attendance`   | Claim daily sign-in rewards manually                |
+| `/characters`   | Browse all Endfield characters                      |
+| `/link account` | Link your SKPort account to Discord                 |
+| `/profile`      | View your in-game profile                           |
+| `/settings`     | Configure the bot settings                          |
+| `/wiki`         | Search the Endfield wiki (operators, weapons, etc.) |
 
 ## Contributing
 
-Feature requests and contributions are welcome. Open an [issue](https://github.com/ScobbleQ/Endministrator/issues) or submit a pull request.
+Feature requests and contributions are welcome.
 
 ## License
 
