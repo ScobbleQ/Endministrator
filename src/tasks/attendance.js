@@ -62,7 +62,7 @@ export async function checkAttendance(client) {
         if (skport.enableNotif) {
           const container = new ContainerBuilder().addTextDisplayComponents((textDisplay) =>
             textDisplay.setContent(
-              `# ▼// Daily Sign-in Summary\n-# <t:${Math.floor(Date.now() / 1000)}:F>`
+              `# ▼// Sign-in Summary\n-# <t:${Math.floor(Date.now() / 1000)}:F>`
             )
           );
 
