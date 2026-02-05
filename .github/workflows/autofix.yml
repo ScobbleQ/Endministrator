@@ -22,11 +22,11 @@ jobs:
           cache: pnpm
 
       # Or yarn, npm, etc.
-      - run: pnpm install --frozen-lockfile
+      - run: npm install --frozen-lockfile
 
       # Run oxfmt to write changes, autofix.ci will commit them if there are any differences.
       # Be sure to add a `fmt` script to your `package.json` if you haven't already.
-      - run: pnpm run fmt
+      - run: npm run fmt
 
       # NOTE: It is strongly recommended to use the latest SHA hash for this action instead of the version number. (See https://autofix.ci/setup for more details.)
       - uses: autofix-ci/action@635ffb0c9798bd160680f18fd73371e355b85f27
