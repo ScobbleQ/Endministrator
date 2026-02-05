@@ -245,7 +245,10 @@ export default {
     const characters = await getCharacters(interaction.user.id);
 
     if (!characters || characters.status !== 0) {
-      await interaction.respond([{ name: characters?.msg || 'Error', value: '-999' }]);
+      const code = JSON.parse(characters.msg).code || characters.status || -1;
+      const msg = JSON.parse(characters.msg).message || characters.msg || 'Unknown error';
+
+      await interaction.respond([{ name: `[${code}] ${msg}`, value: '-999' }]);
       return;
     }
 
@@ -264,8 +267,12 @@ export default {
 
     const characters = await getCharacters(interaction.user.id);
     if (!characters || characters.status !== 0) {
+      const code = JSON.parse(characters.msg).code || characters.status || -1;
+      const msg = JSON.parse(characters.msg).message || characters.msg || 'Unknown error';
+
       await interaction.editReply({
-        components: [textContainer(characters?.msg || 'Failed to load characters')],
+        components: [textContainer(`### [${code}] ${msg}`)],
+        flags: [MessageFlags.IsComponentsV2],
       });
       return;
     }

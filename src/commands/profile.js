@@ -49,6 +49,18 @@ export default {
       });
     }
 
+    const profile = await getCachedCardDetail(interaction.user.id);
+    if (!profile || profile.status !== 0) {
+      const code = JSON.parse(profile.msg).code || profile.status || -1;
+      const msg = JSON.parse(profile.msg).message || profile.msg || 'Unknown error';
+
+      await interaction.reply({
+        components: [textContainer(`### [${code}] ${msg}`)],
+        flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
+      });
+      return;
+    }
+
     const loadingContainer = new ContainerBuilder().addTextDisplayComponents((textDisplay) =>
       textDisplay.setContent('Loading profile information...')
     );
@@ -57,20 +69,6 @@ export default {
       components: [loadingContainer],
       flags: [MessageFlags.IsComponentsV2],
     });
-
-    const profile = await getCachedCardDetail(interaction.user.id);
-    if (!profile || profile.status !== 0) {
-      const errorContainer = new ContainerBuilder().addTextDisplayComponents((textDisplay) =>
-        textDisplay.setContent(
-          `## Failed to get profile information\n${codeBlock('json', profile.msg)}`
-        )
-      );
-      await interaction.editReply({
-        components: [errorContainer],
-        flags: [MessageFlags.IsComponentsV2],
-      });
-      return;
-    }
 
     const profileContainer = new ContainerBuilder();
 

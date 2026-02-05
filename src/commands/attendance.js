@@ -75,12 +75,11 @@ export default {
     });
 
     if (!signin || signin.status !== 0) {
+      const code = JSON.parse(signin.msg).code || signin.status || -1;
+      const msg = JSON.parse(signin.msg).message || signin.msg || 'Unknown error';
+
       await interaction.editReply({
-        components: [
-          textContainer(
-            `## Failed to sign in\n${codeBlock('json', signin?.msg || 'Unknown error')}`
-          ),
-        ],
+        components: [textContainer(`### [${code}] ${msg}`)],
         flags: [MessageFlags.IsComponentsV2],
       });
       return;
