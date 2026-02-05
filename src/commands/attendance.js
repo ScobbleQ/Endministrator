@@ -86,7 +86,7 @@ export default {
     }
 
     const attendanceContainer = new ContainerBuilder().addTextDisplayComponents((textDisplay) =>
-      textDisplay.setContent(`# ▼// Sign-in Reward` )
+      textDisplay.setContent(`# ▼// Sign-in Reward`)
     );
 
     for (const resource of signin.data) {

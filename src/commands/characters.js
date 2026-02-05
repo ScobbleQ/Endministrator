@@ -8,7 +8,7 @@ import {
 } from 'discord.js';
 import { ElementType, Profession } from '../skport/utils/constants.js';
 import { getCachedCardDetail } from '../skport/utils/getCachedCardDetail.js';
-import { textContainer } from '../utils/containers.js';
+import { maintenanceContainer, textContainer } from '../utils/containers.js';
 import { ProfessionEmojis, PropertyEmojis, RarityEmoji } from '../utils/emojis.js';
 
 /** @typedef {import('../skport/api/profile/cardDetail.js').Characters} Characters */
@@ -262,6 +262,12 @@ export default {
   },
   /** @param {import('discord.js').ChatInputCommandInteraction} interaction */
   async execute(interaction) {
+    await interaction.reply({
+      components: [maintenanceContainer()],
+      flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
+    });
+    return;
+
     const selected = interaction.options.getString('name');
     await interaction.deferReply();
 

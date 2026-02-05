@@ -3,6 +3,7 @@ import { getOperators } from '../skport/api/wiki/operators.js';
 import { getWeapons } from '../skport/api/wiki/weapons.js';
 import { getOrCreateCache, getOrSet } from '../skport/utils/cache.js';
 import { resolveSubType } from '../skport/utils/resolveSubType.js';
+import { maintenanceContainer } from '../utils/containers.js';
 
 /** @typedef {import('../skport/utils/typedef.js').WikiApiResponse} WikiApiResponse */
 
@@ -67,6 +68,12 @@ export default {
   },
   /** @param {import("discord.js").ChatInputCommandInteraction} interaction */
   async execute(interaction) {
+    await interaction.reply({
+      components: [maintenanceContainer()],
+      flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
+    });
+    return;
+
     const category = interaction.options.getString('category');
     const query = interaction.options.getString('query');
 

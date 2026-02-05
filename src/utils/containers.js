@@ -48,6 +48,12 @@ export function bindingErrorContainer() {
   );
 }
 
+export function maintenanceContainer() {
+  return new ContainerBuilder().addTextDisplayComponents((textDisplay) =>
+    textDisplay.setContent('This command is currently under maintenance and unavailable.')
+  );
+}
+
 /**
  * @param {string} text
  * @returns {ContainerBuilder}
