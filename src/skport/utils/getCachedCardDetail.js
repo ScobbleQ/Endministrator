@@ -16,10 +16,10 @@ export async function getCachedCardDetail(dcid) {
   const cacheKey = `card-detail-${dcid}`;
   return getOrSet(cardDetailCache, cacheKey, async () => {
     const user = await getUser(dcid);
-    if (!user) return { status: -1, msg: 'Please login with /login first' };
+    if (!user || user.isBanned) return { status: -1, msg: 'User not found or banned' };
 
-    const skport = await getAccount(dcid);
-    if (!skport) return { status: -1, msg: 'Please add a SKPort account with /add account first' };
+    const skport = await getAccount(user.dcid);
+    if (!skport) return { status: -1, msg: 'SKPort account not found' };
 
     const oauth = await grantOAuth({ token: skport.accountToken, type: 0 });
     if (!oauth || oauth.status !== 0) return { status: -1, msg: 'Failed to grant OAuth token' };
@@ -34,6 +34,7 @@ export async function getCachedCardDetail(dcid) {
       userId: skport.userId,
       cred: cred.data.cred,
       token: cred.data.token,
+      hgId: skport.hgId,
     });
 
     if (!card || card.status !== 0) {

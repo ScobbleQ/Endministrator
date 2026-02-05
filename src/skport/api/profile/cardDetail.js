@@ -66,7 +66,7 @@ import { computeSign } from '../../utils/computeSign.js';
 
 /**
  *
- * @param {{ serverId: string, roleId: string, userId: string, cred: string, token: string }} param0
+ * @param {{ serverId: string, roleId: string, userId: string, cred: string, token: string, hgId: string }} param0
  * @returns {Promise<{ status: -1, msg: string } | { status: 0, data: CardDetail }>}
  * @example
  * // Login with email and password
@@ -90,7 +90,7 @@ import { computeSign } from '../../utils/computeSign.js';
  * });
  * console.dir(card, { depth: null });
  */
-export async function cardDetail({ serverId, roleId, userId, cred, token }) {
+export async function cardDetail({ serverId, roleId, userId, cred, token, hgId }) {
   const url = 'https://zonai.skport.com/api/v1/game/endfield/card/detail';
 
   const params = {
@@ -121,10 +121,12 @@ export async function cardDetail({ serverId, roleId, userId, cred, token }) {
 
   const getHeader = {
     Accept: '*/*',
-    'Accept-Encoding': 'gzip, deflate, br',
-    'Accept-Language': 'en-US,en;q=0.9',
+    'Accept-Encoding': 'br;q=1.0, gzip;q=0.9, deflate;q=0.8',
+    'Accept-Language': 'en-US,en;q=1.0',
+    'Cache-Control': 'no-cache',
     Connection: 'keep-alive',
     'Content-Type': 'application/json',
+    Cookie: `acw_tc=_; HG_INFO_KEY={"hgId":"${hgId}"};`,
     Host: 'zonai.skport.com',
     Origin: 'https://game.skport.com',
     Referer: 'https://game.skport.com/',
@@ -146,9 +148,11 @@ export async function cardDetail({ serverId, roleId, userId, cred, token }) {
     const sign = computeSign({
       token: token,
       path: '/api/v1/game/endfield/card/detail',
-      body: '',
+      body: '{}',
       timestamp: ts,
     });
+
+    console.log({ ...getHeader, sign: sign, timestamp: ts });
 
     const res = await fetch(newUrl, {
       method: 'GET',
@@ -158,9 +162,6 @@ export async function cardDetail({ serverId, roleId, userId, cred, token }) {
         timestamp: ts,
       },
     });
-
-    if (res.status === 401) {
-    }
 
     if (!res.ok) {
       const msg = await res.text();

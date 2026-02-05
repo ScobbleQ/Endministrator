@@ -1,6 +1,6 @@
 import { ContainerBuilder, MessageFlags, SlashCommandBuilder } from 'discord.js';
 import { BotConfig } from '../../config.js';
-import { createEvent, getUser } from '../db/queries.js';
+import { createEvent, getAccount, getUser } from '../db/queries.js';
 import { MessageTone, noUserContainer } from '../utils/containers.js';
 
 export default {
@@ -29,6 +29,9 @@ export default {
         },
       });
     }
+
+    const account = await getAccount(interaction.user.id);
+    console.log(account);
 
     const container = new ContainerBuilder();
     container.addTextDisplayComponents((textDisplay) => textDisplay.setContent('## Settings'));

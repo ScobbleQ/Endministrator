@@ -17,4 +17,5 @@
  */
 export async function u8TokenByUid({ token, uid }) {
   const url = 'https://binding-api-account-prod.gryphline.com/account/binding/v1/u8_token_by_uid';
+  console.log(token, uid, url);
 }

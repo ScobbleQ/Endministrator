@@ -11,10 +11,12 @@ import {
   TextInputStyle,
 } from 'discord.js';
 import { createAccount, getUser } from '../db/queries.js';
-import { grantOAuth } from '../skport/api/auth/index.js';
-import { generateCredByCode } from '../skport/api/auth/index.js';
-import { tokenByEmailPassword } from '../skport/api/index.js';
-import { getBinding } from '../skport/api/profile/index.js';
+import {
+  generateCredByCode,
+  getBinding,
+  grantOAuth,
+  tokenByEmailPassword,
+} from '../skport/api/index.js';
 import { textContainer } from '../utils/containers.js';
 import { parseCookieToken } from '../utils/parseCookieToken.js';
 
