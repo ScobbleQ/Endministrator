@@ -1,0 +1,32 @@
+name: autofix.ci # needs to use this name
+
+on:
+  pull_request:
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  autofix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: npm/action-setup@v4
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          cache: npm
+
+      # Or yarn, npm, etc.
+      - run: npm install --frozen-lockfile
+
+      # Run oxfmt to write changes, autofix.ci will commit them if there are any differences.
+      # Be sure to add a `fmt` script to your `package.json` if you haven't already.
+      - run: npm run fmt
+
+      # NOTE: It is strongly recommended to use the latest SHA hash for this action instead of the version number. (See https://autofix.ci/setup for more details.)
+      - uses: autofix-ci/action@1.3.2
