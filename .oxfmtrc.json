@@ -8,5 +8,5 @@
   "importOrder": ["<BUILTIN_MODULES>", "^discord.js$", "<THIRD_PARTY_MODULES>", "^[./]"],
   "importOrderSortSpecifiers": true,
   "experimentalSortPackageJson": false,
-  "ignorePatterns": ["node_modules/", "./github/"]
+  "ignorePatterns": ["node_modules/"]
 }

@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import { db } from './index.js';
 import { accounts, events, users } from './schema.js';
 
@@ -142,6 +142,25 @@ export async function updateAccount(dcid, aid, { key, value }) {
  */
 export async function createEvent(dcid, { interaction, metadata = null }) {
   await db.insert(events).values({ dcid, interaction, metadata });
+}
+
+/**
+ * Get the last n events from the database matching the dcid
+ * @param {string} dcid - The Discord ID
+ * @param {number} [limit=10] - The number of events to get
+ * @returns {Promise<{ createdAt: string, interaction: string, metadata: any }[]>}
+ */
+export async function getEvents(dcid, limit = 10) {
+  return await db
+    .select({
+      createdAt: events.createdAt,
+      interaction: events.interaction,
+      metadata: events.metadata,
+    })
+    .from(events)
+    .where(eq(events.dcid, dcid))
+    .orderBy(desc(events.createdAt))
+    .limit(limit);
 }
 
 /**

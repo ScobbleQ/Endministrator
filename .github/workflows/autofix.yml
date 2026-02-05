@@ -3,7 +3,7 @@ name: autofix.ci # needs to use this name
 on:
   pull_request:
   push:
-    branches: ["main"]
+    branches: ['main']
 
 permissions:
   contents: read
