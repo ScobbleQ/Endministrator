@@ -22,11 +22,8 @@ export default {
 
     if (BotConfig.environment === 'production') {
       await createEvent(interaction.user.id, {
-        interaction: 'discord',
-        metadata: {
-          type: 'slash',
-          command: 'settings',
-        },
+        source: 'slash',
+        action: 'settings',
       });
     }
 

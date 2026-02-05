@@ -42,21 +42,29 @@ export async function checkAttendance(client) {
           throw new Error(attendanceRes?.msg ?? 'Attendance claim failed');
         }
 
-        await createEvent(u.dcid, {
-          interaction: 'cron',
-          metadata: {
-            type: 'attendance',
-            reward: {
-              name: attendanceRes.data[0].name,
-              count: attendanceRes.data[0].count,
-              icon: attendanceRes.data[0].icon,
-            },
-            bonus: attendanceRes.data.slice(1).map((r) => ({
-              name: r.name,
-              count: r.count,
-              icon: r.icon,
-            })),
+        /** @type {{ type: string, reward: { name: string, count: number, icon: string }, bonus?: { name: string, count: number, icon: string }[] }} */
+        const metadata = {
+          type: 'attendance',
+          reward: {
+            name: attendanceRes.data[0].name,
+            count: attendanceRes.data[0].count,
+            icon: attendanceRes.data[0].icon,
           },
+        };
+
+        // If there are bonus rewards, add them to the metadata
+        if (attendanceRes.data.length > 1) {
+          metadata.bonus = attendanceRes.data.slice(1).map((r) => ({
+            name: r.name,
+            count: r.count,
+            icon: r.icon,
+          }));
+        }
+
+        await createEvent(u.dcid, {
+          source: 'cron',
+          action: 'attendance',
+          metadata,
         });
 
         if (skport.enableNotif) {

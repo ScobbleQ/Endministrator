@@ -137,24 +137,43 @@ export async function updateAccount(dcid, aid, { key, value }) {
 /**
  * Create an event in the database
  * @param {string} dcid - The Discord ID
- * @param {{ interaction: string, metadata?: { [key: string]: any } | null }} param0
- * @returns {Promise<void>}
+ * @param {{ source: 'slash'|'button'|'modal'|'select'|'cron', action: string, metadata?: { [key: string]: any } | null }} param0
+ * @returns {Promise<{ id: number }>}
  */
-export async function createEvent(dcid, { interaction, metadata = null }) {
-  await db.insert(events).values({ dcid, interaction, metadata });
+export async function createEvent(dcid, { source, action, metadata = null }) {
+  const res = await db
+    .insert(events)
+    .values({ dcid, source, action, metadata })
+    .returning({ id: events.id });
+
+  return res[0];
+}
+
+/**
+ * Update the metadata of an event in the database matching the dcid and eventId
+ * @param {string} dcid - The Discord ID
+ * @param {number} eventId - The Event ID
+ * @param {{ metadata: any | null }} data
+ */
+export async function updateEventMetadata(dcid, eventId, { metadata }) {
+  await db
+    .update(events)
+    .set({ metadata })
+    .where(and(eq(events.dcid, dcid), eq(events.id, eventId)));
 }
 
 /**
  * Get the last n events from the database matching the dcid
  * @param {string} dcid - The Discord ID
  * @param {number} [limit=10] - The number of events to get
- * @returns {Promise<{ createdAt: string, interaction: string, metadata: any }[]>}
+ * @returns {Promise<{ createdAt: string, source: string, action: string, metadata: any }[]>}
  */
 export async function getEvents(dcid, limit = 10) {
   return await db
     .select({
       createdAt: events.createdAt,
-      interaction: events.interaction,
+      source: events.source,
+      action: events.action,
       metadata: events.metadata,
     })
     .from(events)

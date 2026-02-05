@@ -1,6 +1,6 @@
 import { ContainerBuilder, MessageFlags, SlashCommandBuilder, codeBlock } from 'discord.js';
 import { BotConfig } from '../../config.js';
-import { createEvent, getAccount, getUser } from '../db/queries.js';
+import { createEvent, getAccount, getUser, updateEventMetadata } from '../db/queries.js';
 import { attendance, generateCredByCode, grantOAuth } from '../skport/api/index.js';
 import {
   MessageTone,
@@ -29,13 +29,12 @@ export default {
 
     await interaction.deferReply();
 
+    /** @type {{ id: number } | null} */
+    let event = null;
     if (BotConfig.environment === 'production') {
-      await createEvent(interaction.user.id, {
-        interaction: 'discord',
-        metadata: {
-          type: 'slash',
-          command: 'attendance',
-        },
+      event = await createEvent(interaction.user.id, {
+        source: 'slash',
+        action: 'attendance',
       });
     }
 
@@ -83,6 +82,29 @@ export default {
         flags: [MessageFlags.IsComponentsV2],
       });
       return;
+    }
+
+    // An event was created, update the metadata with the sign-in rewards
+    if (event && event.id) {
+      /** @type {{ reward: { name: string, count: number, icon: string }, bonus?: { name: string, count: number, icon: string }[] }} */
+      const metadata = {
+        reward: {
+          name: signin.data[0].name,
+          count: signin.data[0].count,
+          icon: signin.data[0].icon,
+        },
+      };
+
+      // If there are bonus rewards, add them to the metadata
+      if (signin.data.length > 1) {
+        metadata.bonus = signin.data.slice(1).map((r) => ({
+          name: r.name,
+          count: r.count,
+          icon: r.icon,
+        }));
+      }
+
+      await updateEventMetadata(interaction.user.id, event.id, { metadata });
     }
 
     const attendanceContainer = new ContainerBuilder().addTextDisplayComponents((textDisplay) =>

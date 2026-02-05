@@ -1,6 +1,7 @@
 import { codeBlock, ContainerBuilder, MessageFlags, SlashCommandBuilder } from 'discord.js';
-import { getAccount, getEvents, getUser } from '../db/queries.js';
+import { createEvent, getAccount, getEvents, getUser } from '../db/queries.js';
 import { MessageTone, noUserContainer } from '../utils/containers.js';
+import { BotConfig } from '../../config.js';
 
 export default {
   data: new SlashCommandBuilder()
@@ -17,6 +18,13 @@ export default {
         flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
       });
       return;
+    }
+
+    if (BotConfig.environment === 'production') {
+      await createEvent(interaction.user.id, {
+        source: 'slash',
+        action: 'data',
+      });
     }
 
     const container = new ContainerBuilder().addTextDisplayComponents((textDisplay) =>
