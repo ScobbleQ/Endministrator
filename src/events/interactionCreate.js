@@ -128,7 +128,7 @@ export default {
  */
 async function reply(interaction, message) {
   if (interaction.isAutocomplete()) {
-    await interaction.respond([{ name: message, value: 999 }]);
+    await interaction.respond([{ name: message, value: '-999' }]);
     return;
   }
 

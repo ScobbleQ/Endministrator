@@ -2,6 +2,7 @@ import { ContainerBuilder, MessageFlags } from 'discord.js';
 import pLimit from 'p-limit';
 import { createEvent, getAccount, getAllUsersWithAttendance } from '../db/queries.js';
 import { attendance, generateCredByCode, grantOAuth } from '../skport/api/index.js';
+import { privacy } from '../utils/privacy.js';
 
 /**
  *
@@ -76,14 +77,32 @@ export async function checkAttendance(client) {
 
           container.addSeparatorComponents((separator) => separator);
 
-          for (const reward of attendanceRes.data) {
-            container.addSectionComponents((section) =>
-              section
-                .addTextDisplayComponents((textDisplay) =>
-                  textDisplay.setContent(`### ${reward.name}\nAmount: **${reward.count}**`)
-                )
-                .setThumbnailAccessory((thumbnail) => thumbnail.setURL(reward.icon))
-            );
+          for (let i = 0; i < attendanceRes.data.length; i++) {
+            const accountInfo = `${skport.nickname} (${privacy(skport.roleId, skport.isPrivate)})`;
+            const reward = attendanceRes.data[i];
+
+            // First reward is the main reward
+            if (i === 0) {
+              container.addSectionComponents((section) =>
+                section
+                  .addTextDisplayComponents((textDisplay) =>
+                    textDisplay.setContent(
+                      `### ${accountInfo}\n${reward.name}\nAmount: **${reward.count}**`
+                    )
+                  )
+                  .setThumbnailAccessory((thumbnail) => thumbnail.setURL(reward.icon))
+              );
+            } else {
+              container.addSectionComponents((section) =>
+                section
+                  .addTextDisplayComponents((textDisplay) =>
+                    textDisplay.setContent(
+                      `__Bonus Reward:__\n${reward.name}\nAmount: **${reward.count}**`
+                    )
+                  )
+                  .setThumbnailAccessory((thumbnail) => thumbnail.setURL(reward.icon))
+              );
+            }
           }
 
           try {
