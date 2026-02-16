@@ -24,7 +24,6 @@ export async function getCachedCardDetail(dcid) {
     const oauth = await grantOAuth({ token: skport.accountToken, type: 0 });
     if (!oauth || oauth.status !== 0) return { status: -1, msg: 'Failed to grant OAuth token' };
 
-    // @ts-ignore - code is guaranteed when using type 0
     const cred = await generateCredByCode({ code: oauth.data.code });
     if (!cred || cred.status !== 0) return { status: -1, msg: 'Failed to generate credentials' };
 

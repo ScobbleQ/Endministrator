@@ -1,5 +1,3 @@
-import UserAgent from 'user-agents';
-
 /**
  * Generate credentials by code from SKPort via the website
  * @param {{ code: string }} param0

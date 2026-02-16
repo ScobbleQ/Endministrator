@@ -26,7 +26,6 @@ export async function checkAttendance(client) {
         const oauth = await grantOAuth({ token: skport.accountToken, type: 0 });
         if (!oauth || oauth.status !== 0) throw new Error(oauth?.msg ?? 'OAuth failed');
 
-        // @ts-ignore: code is guaranteed since we are using type 0
         const cred = await generateCredByCode({ code: oauth.data.code });
         if (!cred || cred.status !== 0) {
           throw new Error(cred?.msg ?? 'Credential generation failed');

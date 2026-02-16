@@ -1,7 +1,36 @@
 /**
+ * @typedef {{ status: -1, msg: string }} OAuthError
+ */
+
+/**
+ * @typedef {{ status: 0, data: { uid: string, code: string } }} OAuthType0
+ */
+
+/**
+ * @typedef {{ status: 0, data: { token: string, hgId: string } }} OAuthType1
+ */
+
+/**
+ * @overload
+ * @param {{ token: string, type: 0 }} params
+ * @returns {Promise<OAuthType0 | OAuthError>}
+ */
+
+/**
+ * @overload
+ * @param {{ token: string, type: 1 }} params
+ * @returns {Promise<OAuthType1 | OAuthError>}
+ */
+
+/**
+ * @param {{ token: string, type: 0 | 1 }} params
+ * @returns {Promise<OAuthType0 | OAuthType1 | OAuthError>}
+ */
+
+/**
  * Get OAuth token from SKPort via the app
  * @param {{ token: string, type: 0 | 1 }} param0
- * @returns {Promise<{ status: -1, msg: string } | { status: 0, data: { uid: string, code: string } | { token: string, hgId: string} }>}
+ * @returns {Promise<OAuthType0 | OAuthType1 | OAuthError>}
  * @example
  * // Login with email and password
  * const login = await tokenByEmailPassword('test@example.com', 'password');
