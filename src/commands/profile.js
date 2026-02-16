@@ -74,9 +74,10 @@ export default {
         textDisplay.setContent(
           [
             `## ▼// ${profile.data.base.name}`,
-            `>> Awakening Day: <t:${profile.data.base.createTime}:D>`,
-            `>> UID: ${privacy(profile.data.base.roleId, account.isPrivate)}`,
-            `>> Server: ${profile.data.base.serverName}`,
+            `\> Awakening Day: <t:${profile.data.base.createTime}:D>`,
+            `\> UID: ${privacy(profile.data.base.roleId, account.isPrivate)}`,
+            `\> Server: ${profile.data.base.serverName}`,
+            `\> Last Login: <t:${profile.data.base.lastLoginTime}:R>`,
           ].join('\n')
         )
       )
