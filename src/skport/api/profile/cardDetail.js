@@ -93,71 +93,41 @@ import { computeSign } from '../../utils/computeSign.js';
 export async function cardDetail({ serverId, roleId, userId, cred, token, hgId }) {
   const url = 'https://zonai.skport.com/api/v1/game/endfield/card/detail';
 
-  const params = {
-    roleId: roleId,
-    serverId: serverId,
-    userId: userId,
-  };
-
-  const newUrl = `${url}?${new URLSearchParams(params).toString()}`;
-
-  const optionHeader = {
-    Accept: '*/*',
-    'Accept-Encoding': 'gzip, deflate, br',
-    'Accept-Language': 'en-US,en;q=0.9',
-    'Access-Control-Request-Headers': 'content-type,cred,platform,sign,sk-language,timestamp,vname',
-    'Access-Control-Request-Method': 'GET',
-    Connection: 'keep-alive',
-    'Content-Length': '0',
-    Host: 'zonai.skport.com',
-    Origin: 'https://game.skport.com',
-    Referer: 'https://game.skport.com/',
-    'Sec-Fetch-Dest': 'empty',
-    'Sec-Fetch-Mode': 'cors',
-    'Sec-Fetch-Site': 'same-site',
-    'User-Agent':
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 SKPort/1.0.0(100000018)',
-  };
-
-  const getHeader = {
+  const headers = {
     Accept: '*/*',
     'Accept-Encoding': 'br;q=1.0, gzip;q=0.9, deflate;q=0.8',
     'Accept-Language': 'en-US,en;q=1.0',
     'Cache-Control': 'no-cache',
     Connection: 'keep-alive',
     'Content-Type': 'application/json',
-    Cookie: `acw_tc=_; HG_INFO_KEY={"hgId":"${hgId}"};`,
     Host: 'zonai.skport.com',
     Origin: 'https://game.skport.com',
     Referer: 'https://game.skport.com/',
     'Sec-Fetch-Dest': 'empty',
     'Sec-Fetch-Mode': 'cors',
     'Sec-Fetch-Site': 'same-site',
-    'User-Agent':
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 SKPort/1.0.0(100000018)',
+    'User-Agent': 'Skport/0.7.0 (com.gryphline.skport; build:700089; Android 33; ) Okhttp/5.1.0',
     cred: cred,
     platform: '3',
     'sk-language': 'en',
     vName: '1.0.0',
+    priority: 'u=1, i',
+    'sk-game-role': `3_${roleId}_${serverId}`,
   };
 
   try {
-    await fetch(newUrl, { method: 'OPTIONS', headers: optionHeader });
-
     const ts = Math.floor(Date.now() / 1000).toString();
     const sign = computeSign({
       token: token,
       path: '/api/v1/game/endfield/card/detail',
-      body: '{}',
+      body: '',
       timestamp: ts,
     });
 
-    console.log({ ...getHeader, sign: sign, timestamp: ts });
-
-    const res = await fetch(newUrl, {
+    const res = await fetch(url, {
       method: 'GET',
       headers: {
-        ...getHeader,
+        ...headers,
         sign: sign,
         timestamp: ts,
       },

@@ -19,43 +19,14 @@ export async function grantOAuth({ token, type }) {
     type: type,
   };
 
-  const optionHeaders = {
-    Accept: '*/*',
-    'Accept-Encoding': 'gzip, deflate, br',
-    'Accept-Language': 'en-US,en;q=0.9',
-    'Access-Control-Request-Headers': 'content-type,x-language',
-    'Access-Control-Request-Method': 'POST',
-    Connection: 'keep-alive',
-    'Content-Length': '0',
-    Host: 'as.gryphline.com',
-    Origin: 'https://game.skport.com',
-    Referer: 'https://game.skport.com/',
-    'Sec-Fetch-Dest': 'empty',
-    'Sec-Fetch-Mode': 'cors',
-    'Sec-Fetch-Site': 'cross-site',
-    'User-Agent':
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 SKPort/1.0.0(100000018)',
-  };
-
-  const postHeaders = {
-    Accept: '*/*',
-    'Accept-Encoding': 'gzip, deflate, br',
-    'Accept-Language': 'en-US,en;q=0.9',
-    Connection: 'keep-alive',
-    'Content-Length': JSON.stringify(body).length.toString(),
-    'Content-Type': 'application/json',
-    Host: 'as.gryphline.com',
-    'User-Agent': 'skport-ios/100000018 CFNetwork/3860.300.31 Darwin/25.2.0',
-    'X-Captcha-Version': '4.0',
-    'X-Language': 'en-us',
-  };
-
   try {
-    await fetch(url, { method: 'OPTIONS', headers: optionHeaders });
-
     const res = await fetch(url, {
       method: 'POST',
-      headers: postHeaders,
+      headers: {
+        Accept: 'application/json',
+        'Content-Length': JSON.stringify(body).length.toString(),
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify(body),
     });
 

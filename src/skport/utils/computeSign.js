@@ -30,10 +30,6 @@ export function computeSign({ token, path, body = '', timestamp }) {
   });
 
   const signString = `${path}${body}${timestamp}${headers}`;
-
-  const hmacResult = crypto.createHmac('sha256', token).update(signString).digest('hex');
-
-  const sign = crypto.createHash('md5').update(hmacResult).digest('hex');
-
-  return sign;
+  const hmac = crypto.createHmac('sha256', token).update(signString).digest('hex');
+  return crypto.createHash('md5').update(hmac).digest('hex');
 }

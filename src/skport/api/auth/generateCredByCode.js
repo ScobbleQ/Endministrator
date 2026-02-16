@@ -22,21 +22,14 @@ export async function generateCredByCode({ code }) {
   };
 
   const headers = {
-    Accept: '*/*',
-    'Accept-Encoding': 'gzip, deflate, br',
-    'Accept-Language': 'en-US,en;q=0.9',
-    'Cache-Control': 'no-cache',
-    Connection: 'keep-alive',
+    Accept: 'application/json',
     'Content-Length': JSON.stringify(body).length.toString(),
     'Content-Type': 'application/json',
     Origin: 'https://www.skport.com',
     platform: '3',
-    Pragma: 'no-cache',
-    Priority: 'u=3, i',
     Referer: 'https://www.skport.com/',
     'sk-language': 'en',
     timestamp: Math.floor(Date.now() / 1000).toString(),
-    'User-Agent': new UserAgent({ deviceCategory: 'desktop' }).toString(),
     vName: '1.0.0',
   };
 
