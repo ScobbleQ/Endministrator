@@ -37,11 +37,11 @@ import { computeSign } from '../../utils/computeSign.js';
  * @property {string} id
  * @property {number} level
  * @property {Record<string, { skillId: string, level: number, maxLevel: number }>} userSkills
- * @property {{}} bodyEquip
- * @property {{}} armEquip
- * @property {{}} firstAccessory
- * @property {{}} secondAccessory
- * @property {{}} tacticalItem
+ * @property {{ equipId: string, equipData: { id: string, name: string, iconUrl: string, rarity: { key: string, value: string }, type: { key: string, value: string }, level: { key: string, value: string }, properties: string[], isAccessory: boolean, suit: { id: string, name: string, skillId: string, skillDesc: string, skillDescParams: { [key: string]: string } }, function: string, pkg: string } } | null} bodyEquip
+ * @property {{ equipId: string, equipData: { id: string, name: string, iconUrl: string, rarity: { key: string, value: string }, type: { key: string, value: string }, level: { key: string, value: string }, properties: string[], isAccessory: boolean, suit: { id: string, name: string, skillId: string, skillDesc: string, skillDescParams: { [key: string]: string } }, function: string, pkg: string } } | null} armEquip
+ * @property {{ equipId: string, equipData: { id: string, name: string, iconUrl: string, rarity: { key: string, value: string }, type: { key: string, value: string }, level: { key: string, value: string }, properties: string[], isAccessory: boolean, suit: { id: string, name: string, skillId: string, skillDesc: string, skillDescParams: { [key: string]: string } }, function: string, pkg: string } } | null} firstAccessory
+ * @property {{ equipId: string, equipData: { id: string, name: string, iconUrl: string, rarity: { key: string, value: string }, type: { key: string, value: string }, level: { key: string, value: string }, properties: string[], isAccessory: boolean, suit: { id: string, name: string, skillId: string, skillDesc: string, skillDescParams: { [key: string]: string } }, function: string, pkg: string } } | null} secondAccessory
+ * @property {{ tacticalItemId: string, tacticalItemData: { id: string, name: string, iconUrl: string, rarity: { key: string, value: string }, activeEffectType: { key: string, value: string }, activeEffect: string, passiveEffect: string, activeEffectParams: { [key: string]: string }, passiveEffectParams: { [key: string]: string } } } | null} tacticalItem
  * @property {number} evolvePhase
  * @property {number} potentialLevel
  * @property {{ weaponData: { id: string, name: string, iconUrl: string, rarity: { key: string, value: string }, type: { key: string, value: string }, function: string, description: string, skills: { key: string, value: string }[] }, level: number, refineLevel: number, breakthroughLevel: number, gem: null }} weapon

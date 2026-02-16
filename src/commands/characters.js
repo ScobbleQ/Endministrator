@@ -8,8 +8,9 @@ import {
 } from 'discord.js';
 import { ElementType, Profession } from '../skport/utils/constants.js';
 import { getCachedCardDetail } from '../skport/utils/getCachedCardDetail.js';
-import { maintenanceContainer, textContainer } from '../utils/containers.js';
-import { ProfessionEmojis, PropertyEmojis, RarityEmoji } from '../utils/emojis.js';
+import { textContainer } from '../utils/containers.js';
+import { ProfessionEmojis, PropertyEmojis, RarityEmoji, Rarity2Emoji } from '../utils/emojis.js';
+import { getMaxLevel, getBreakthroughLevel } from '../utils/game.js';
 
 /** @typedef {import('../skport/api/profile/cardDetail.js').Characters} Characters */
 
@@ -21,6 +22,38 @@ const getProfessionName = (c) => c.charData.profession.value;
 
 /** @param {Characters} c */
 const getElementName = (c) => c.charData.property.value;
+
+/**
+ * Substitute tactical effect placeholders with actual param values.
+ * Placeholders: <@ba.vup>{paramName:format}</> where format is "0" (raw) or "0%" (as percentage).
+ * Also strips <@tips.xxx>...</> to plain text.
+ * @param {string} text
+ * @param {Record<string, string>} params
+ * @returns {string}
+ */
+const substituteTacticalParams = (text, params) => {
+  if (!text || typeof text !== 'string') return '';
+  let out = text;
+
+  // Replace <@ba.vup>{key:format}</> with bold param value
+  out = out.replace(/<@ba\.vup>\{(\w+):([^}]*)\}<\/>/g, (_, key, format) => {
+    const raw = params?.[key];
+    if (raw === undefined || raw === null) return raw ?? '';
+    const formatStr = (format || '').trim();
+    let value;
+    if (formatStr.includes('%')) {
+      const num = parseFloat(raw);
+      value = Number.isNaN(num) ? raw : `${Math.round(num * 100)}%`;
+    } else {
+      value = String(raw);
+    }
+    return `**${value}**`;
+  });
+
+  // Strip all " - <@tips.xxx>...</>" (bullet + tag and content)
+  out = out.replace(/\n?\s*-\s*<@tips\.\w+>.*?<\/>/gs, '').replace(/\s{2,}/g, ' ');
+  return out.trim();
+};
 
 /**
  * @param {string} dcid
@@ -151,7 +184,7 @@ const buildCatalogContainer = (chars, { page, profession, element }) => {
           )
           .setButtonAccessory((button) =>
             button
-              .setCustomId(`characters-view:${op.charData.id}`)
+              .setCustomId(`characters-view:${op.charData.id}:${stateStr}`)
               .setLabel('View Character')
               .setStyle(ButtonStyle.Primary)
           )
@@ -191,28 +224,118 @@ const buildCatalogContainer = (chars, { page, profession, element }) => {
 
 /**
  * @param {Characters} character
+ * @param {string} [catalogStateStr] - Optional state (page:profession:element) to restore when going back
  * @returns {ContainerBuilder}
  */
-const buildCharacterContainer = (character) => {
-  const { charData, level, evolvePhase, ownTs } = character;
+const buildCharacterContainer = (character, catalogStateStr) => {
+  const { charData, level, evolvePhase, potentialLevel, ownTs, weapon } = character;
   const profName = getProfessionName(character);
   const propName = getElementName(character);
+  console.dir(character, { depth: null });
 
-  return new ContainerBuilder().addSectionComponents((section) =>
+  const container = new ContainerBuilder().addSectionComponents((section) =>
     section
       .addTextDisplayComponents((textDisplay) =>
         textDisplay.setContent(
           [
             `## ${charData.name}`,
-            `${ProfessionEmojis[/** @type {keyof typeof ProfessionEmojis} */ (profName)]} ${profName} · ${PropertyEmojis[/** @type {keyof typeof PropertyEmojis} */ (propName)]} ${propName}`,
-            `${RarityEmoji}`.repeat(Number(charData.rarity?.value ?? 0)),
-            `Level **${level}** · Phase **${evolvePhase}**`,
+            `${ProfessionEmojis[/** @type {keyof typeof ProfessionEmojis} */ (profName)]}${PropertyEmojis[/** @type {keyof typeof PropertyEmojis} */ (propName)]} | ` +
+              Rarity2Emoji.repeat(Number(charData.rarity.value || 0)),
+            `Level **${level}**/${getMaxLevel(evolvePhase)} · Potential **${potentialLevel}**`,
             `Recruited <t:${ownTs}:D> at <t:${ownTs}:t>`,
           ].join('\n')
         )
       )
       .setThumbnailAccessory((thumb) => thumb.setURL(charData.avatarRtUrl))
   );
+
+  if (weapon && weapon.weaponData) {
+    container.addTextDisplayComponents((textDisplay) => textDisplay.setContent('### Weapons'));
+    container.addTextDisplayComponents((textDisplay) =>
+      textDisplay.setContent(
+        [
+          `[${weapon.weaponData.type.value}] ${weapon.weaponData.name}`,
+          `${Rarity2Emoji}`.repeat(Number(weapon.weaponData.rarity.value || 0)),
+          `Lv. **${weapon.level}**/${getBreakthroughLevel(weapon.breakthroughLevel)} · Refine **${weapon.refineLevel}**`,
+        ].join('\n')
+      )
+    );
+  }
+
+  const skillLines = ['### Skills'];
+  for (const skill of Object.values(character.userSkills)) {
+    const skillData = character.charData.skills.find((s) => s.id === skill.skillId);
+    skillLines.push(
+      `[${skillData?.type.value}] ${skillData?.name}\n-# Rank **${skill.level}**/${skill.maxLevel}`
+    );
+  }
+
+  container.addTextDisplayComponents((textDisplay) =>
+    textDisplay.setContent(skillLines.join('\n'))
+  );
+
+  const equips = [
+    character.bodyEquip,
+    character.armEquip,
+    character.firstAccessory,
+    character.secondAccessory,
+  ].filter((equip) => equip && equip.equipData);
+
+  if (equips.length > 0) {
+    const gearLines = ['### Gear'];
+    for (const equip of equips) {
+      const equipData = equip?.equipData;
+      if (!equipData) continue;
+      gearLines.push(
+        `[${equipData.type.value}] ${equipData.name}\n-# Level **${equipData.level.value}**`
+      );
+    }
+
+    container.addTextDisplayComponents((textDisplay) =>
+      textDisplay.setContent(gearLines.join('\n'))
+    );
+  }
+
+  if (character.tacticalItem && character.tacticalItem.tacticalItemData) {
+    const { tacticalItemData } = character.tacticalItem;
+    const activeParams = tacticalItemData.activeEffectParams ?? {};
+    const passiveParams = tacticalItemData.passiveEffectParams ?? {};
+
+    const activeText = substituteTacticalParams(tacticalItemData.activeEffect, activeParams);
+    const passiveText = substituteTacticalParams(tacticalItemData.passiveEffect, passiveParams);
+
+    container.addTextDisplayComponents((textDisplay) =>
+      textDisplay.setContent('### Tactical Item')
+    );
+
+    container.addTextDisplayComponents((textDisplay) =>
+      textDisplay.setContent(
+        `[${tacticalItemData.activeEffectType.value}] ${tacticalItemData.name}\n-# ${activeText}\n-# ${passiveText}`
+      )
+    );
+  }
+
+  container.addSeparatorComponents((separator) => separator);
+
+  const backCustomId = catalogStateStr
+    ? `characters-catalog-${catalogStateStr}`
+    : 'characters-catalog';
+
+  const backButton = new ButtonBuilder()
+    .setCustomId(backCustomId)
+    .setLabel('Back')
+    .setStyle(ButtonStyle.Secondary);
+
+  const toImageButton = new ButtonBuilder()
+    .setCustomId(`characters-image:${character.charData.id}`)
+    .setLabel('Generate Image')
+    .setStyle(ButtonStyle.Secondary);
+
+  container.addActionRowComponents((actionRow) =>
+    actionRow.addComponents(backButton, toImageButton)
+  );
+
+  return container;
 };
 
 /**
@@ -262,12 +385,6 @@ export default {
   },
   /** @param {import('discord.js').ChatInputCommandInteraction} interaction */
   async execute(interaction) {
-    await interaction.reply({
-      components: [maintenanceContainer()],
-      flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
-    });
-    return;
-
     const selected = interaction.options.getString('name');
     await interaction.deferReply();
 
@@ -315,10 +432,22 @@ export default {
     }
 
     if (action === 'view' && payload) {
-      const character = characters.data.find((c) => c.charData.id === payload);
+      const [charId, ...stateParts] = payload.split(':');
+      const catalogStateStr = stateParts.length > 0 ? stateParts.join(':') : undefined;
+      const character = characters.data.find((c) => c.charData.id === charId);
       if (character) {
-        await interaction.editReply({ components: [buildCharacterContainer(character)] });
+        await interaction.editReply({
+          components: [buildCharacterContainer(character, catalogStateStr)],
+        });
       }
+      return;
+    }
+
+    if (action === 'catalog') {
+      const stateStr = args[1];
+      const state = stateStr ? parseState(stateStr) : INITIAL_STATE;
+      const container = buildCatalogContainer(characters.data, state);
+      await interaction.editReply({ components: [container] });
       return;
     }
 
