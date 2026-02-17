@@ -1,4 +1,4 @@
-# Endministrator
+# Endvoyant
 
 > [!IMPORTANT]
 > This bot is still in the early beta phase, features may not work as intended<br />
