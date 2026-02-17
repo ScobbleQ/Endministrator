@@ -36,7 +36,7 @@ import { computeSign } from '../../utils/computeSign.js';
  * @property {CharacterData} charData
  * @property {string} id
  * @property {number} level
- * @property {Record<string, { skillId: string, level: number, maxLevel: number }>} userSkills
+ * @property {Record<string, UserSkillData>} userSkills
  * @property {{ equipId: string, equipData: { id: string, name: string, iconUrl: string, rarity: { key: string, value: string }, type: { key: string, value: string }, level: { key: string, value: string }, properties: string[], isAccessory: boolean, suit: { id: string, name: string, skillId: string, skillDesc: string, skillDescParams: { [key: string]: string } }, function: string, pkg: string } } | null} bodyEquip
  * @property {{ equipId: string, equipData: { id: string, name: string, iconUrl: string, rarity: { key: string, value: string }, type: { key: string, value: string }, level: { key: string, value: string }, properties: string[], isAccessory: boolean, suit: { id: string, name: string, skillId: string, skillDesc: string, skillDescParams: { [key: string]: string } }, function: string, pkg: string } } | null} armEquip
  * @property {{ equipId: string, equipData: { id: string, name: string, iconUrl: string, rarity: { key: string, value: string }, type: { key: string, value: string }, level: { key: string, value: string }, properties: string[], isAccessory: boolean, suit: { id: string, name: string, skillId: string, skillDesc: string, skillDescParams: { [key: string]: string } }, function: string, pkg: string } } | null} firstAccessory
@@ -44,9 +44,18 @@ import { computeSign } from '../../utils/computeSign.js';
  * @property {{ tacticalItemId: string, tacticalItemData: { id: string, name: string, iconUrl: string, rarity: { key: string, value: string }, activeEffectType: { key: string, value: string }, activeEffect: string, passiveEffect: string, activeEffectParams: { [key: string]: string }, passiveEffectParams: { [key: string]: string } } } | null} tacticalItem
  * @property {number} evolvePhase
  * @property {number} potentialLevel
- * @property {{ weaponData: { id: string, name: string, iconUrl: string, rarity: { key: string, value: string }, type: { key: string, value: string }, function: string, description: string, skills: { key: string, value: string }[] }, level: number, refineLevel: number, breakthroughLevel: number, gem: null }} weapon
+ * @property {Weapon | null} weapon
  * @property {string} gender
  * @property {string} ownTs
+ */
+
+/**
+ * @typedef {Object} Weapon
+ * @property {{ id: string, name: string, iconUrl: string, rarity: { key: string, value: string }, type: { key: string, value: string }, function: string, description: string, skills: { key: string, value: string }[] }} weaponData
+ * @property {number} level
+ * @property {number} refineLevel
+ * @property {number} breakthroughLevel
+ * @property {null} gem
  */
 
 /**
@@ -59,9 +68,28 @@ import { computeSign } from '../../utils/computeSign.js';
  * @property {{ key: string, value: string }} profession
  * @property {{ key: string, value: string }} property
  * @property {{ key: string, value: string }} weaponType
- * @property {{ id: string, name: string, type: { key: string, value: string }, property: { key: string, value: string }, iconUrl: string, desc: string, descParams: { abt: string, atk_scale: string, poise: string }, descLevelParams: { [key: string]: { level: string, params: { [key: string]: string } } } }[]} skills
+ * @property {SkillData[]} skills
  * @property {string} illustrationUrl
  * @property {string[]} tags
+ */
+
+/**
+ * @typedef {Object} UserSkillData
+ * @property {string} skillId
+ * @property {number} level
+ * @property {number} maxLevel
+ */
+
+/**
+ * @typedef {Object} SkillData
+ * @property {string} id
+ * @property {string} name
+ * @property {{ key: string, value: string }} type
+ * @property {{ key: string, value: string }} property
+ * @property {string} iconUrl
+ * @property {string} desc
+ * @property {{ [key: string]: string } | {}} descParams
+ * @property {Record<string, { level: string, params: { [key: string]: string } }>} descLevelParams
  */
 
 /**

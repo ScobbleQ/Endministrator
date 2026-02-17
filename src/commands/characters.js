@@ -11,6 +11,7 @@ import { getCachedCardDetail } from '../skport/utils/getCachedCardDetail.js';
 import { textContainer } from '../utils/containers.js';
 import { ProfessionEmojis, PropertyEmojis, RarityEmoji, Rarity2Emoji } from '../utils/emojis.js';
 import { getMaxLevel, getBreakthroughLevel } from '../utils/game.js';
+import { generateCharacterBuild } from '../utils/generateCharacterBuild.js';
 
 /** @typedef {import('../skport/api/profile/cardDetail.js').Characters} Characters */
 
@@ -454,6 +455,15 @@ export default {
     if (action === 'page' && payload) {
       const container = buildCatalogContainer(characters.data, parseState(payload));
       await interaction.editReply({ components: [container] });
+      return;
+    }
+
+    if (action === 'image' && payload) {
+      const character = characters.data.find((c) => c.charData.id === payload);
+      if (character) {
+        const attachment = await generateCharacterBuild(interaction.user.id, character);
+        await interaction.followUp({ files: [attachment] });
+      }
     }
   },
   /** @param {import('discord.js').StringSelectMenuInteraction} interaction @param {...string} args */
